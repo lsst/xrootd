@@ -4,12 +4,16 @@
 
 # Breaks on Darwin w/o this
 export LANG=C
+	
+PKGDIR=$PWD
+BUILDDIR=$PWD/../xrootd-build
 
 config()
 {
 	echo "STARTING XROOTD BUILD IN $PWD"
-	cd ..
-	echo "CONFIGURING XROOTD IN $PWD"
+	rm -rf ${BUILDDIR}
+	mkdir ${BUILDDIR}
+	cd ${BUILDDIR}
 	cmake ${PKGDIR} -DCMAKE_INSTALL_PREFIX=${PREFIX} -DENABLE_PERL=FALSE
 }
 
