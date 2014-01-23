@@ -1,0 +1,15 @@
+#!/bin/bash
+
+. "$EUPS_DIR/lib/eupspkg.sh"
+
+# Breaks on Darwin w/o this
+export LANG=C
+
+config()
+{
+	PKGDIR="$PWD"
+	cd ..
+	cmake ./${PKGDIR} -DCMAKE_INSTALL_PREFIX=${PREFIX} -DENABLE_PERL=FALSE
+}
+
+"$@"
