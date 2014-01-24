@@ -17,4 +17,17 @@ config()
 	cmake ${PKGDIR} -DCMAKE_INSTALL_PREFIX=${PREFIX} -DENABLE_PERL=FALSE
 }
 
+build()
+{
+	cd ${BUILDDIR}
+	default_build
+}
+
+install()
+{
+	cd ${BUILDDIR}
+	default_install
+}
+
+
 "$@"
