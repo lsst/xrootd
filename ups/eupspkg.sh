@@ -8,7 +8,6 @@ BUILDDIR=$PWD/../xrootd-build
 
 config()
 {
-	echo "STARTING XROOTD BUILD IN $PWD"
 	rm -rf ${BUILDDIR}
 	mkdir ${BUILDDIR}
 	cd ${BUILDDIR}
@@ -25,6 +24,14 @@ install()
 {
 	cd ${BUILDDIR}
 	make -j$NJOBS install
+
+        ARCH=`arch`
+        case "${ARCH}" in
+            x86_64) ln -s ${PREFIX}/lib64 ${PREFIX}/lib ;;
+            *)      echo "Default behaviour for managing lib(64)/ directory" ;;
+        esac
+
+
 	cd ${PKGDIR}
 	install_ups
 }
