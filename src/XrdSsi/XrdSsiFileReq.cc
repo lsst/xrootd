@@ -522,7 +522,7 @@ XrdSfsXferSize XrdSsiFileReq::readStrmP(XrdSsiStream *strmP,
    static const char *epname = "readStrmP";
    XrdSsiErrInfo  eObj;
    XrdSfsXferSize xlen = 0;
-   int dlen;
+   int dlen = 0;
 
 // Copy out data from the stream to fill the buffer
 //
