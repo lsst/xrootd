@@ -48,7 +48,9 @@ int              myPort;
 bool             isServer;
 XrdSsiCluster   *SsiCms;
 
-bool             Configure(const char *cFN, XrdOucEnv *envP);
+bool             Configure(const char *cFN);
+
+bool             Configure(XrdOucEnv *envP);
 
                  XrdSsiSfsConfig();
                 ~XrdSsiSfsConfig() {}
@@ -65,7 +67,7 @@ int           maxRSZ;         // Maximum request size
 int           roleID;
 
 int           ConfigCms(XrdOucEnv *envP);
-int           ConfigObj(XrdOucEnv *envP);
+int           ConfigObj();
 int           ConfigSvc();
 int           ConfigXeq(char *var);
 int           Xlib(const char *lName, char **lPath, char **lParm);

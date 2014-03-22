@@ -109,8 +109,7 @@ extern "C"
 {
 XrdSfsFileSystem *XrdSfsGetFileSystem(XrdSfsFileSystem *nativeFS,
                                       XrdSysLogger     *logger,
-                                      const char       *configFn,
-                                      XrdOucEnv        *envP)
+                                      const char       *configFn)
 {
 // No need to herald this as it's now the default filesystem
 //
@@ -120,12 +119,21 @@ XrdSfsFileSystem *XrdSfsGetFileSystem(XrdSfsFileSystem *nativeFS,
 
 // Initialize the subsystems
 //
-   if (!Config.Configure(configFn, envP)) return 0;
+   if (!Config.Configure(configFn)) return 0;
 
 // All done, we can return the callout vector to these routines.
 //
    return &Sfs;
 }
+}
+
+/******************************************************************************/
+/*                               E n v I n f o                                */
+/******************************************************************************/
+  
+void XrdSsiSfs::EnvInfo(XrdOucEnv *envP)
+{
+    if (!Config.Configure(envP)) abort();
 }
 
 /******************************************************************************/

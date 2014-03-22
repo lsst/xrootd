@@ -127,7 +127,7 @@ XrdSsiSfsConfig::XrdSsiSfsConfig()
 /*                             C o n f i g u r e                              */
 /******************************************************************************/
 
-bool XrdSsiSfsConfig::Configure(const char *cFN, XrdOucEnv *envP)
+bool XrdSsiSfsConfig::Configure(const char *cFN)
 {
    char *var;
    const char *tmp;
@@ -137,7 +137,7 @@ bool XrdSsiSfsConfig::Configure(const char *cFN, XrdOucEnv *envP)
 
 // Print warm-up message
 //
-   Log.Say("++++++ ssi initialization started.");
+   Log.Say("++++++ ssi phase 1 initialization started.");
 
 // Preset all variables with common defaults
 //
@@ -182,9 +182,34 @@ bool XrdSsiSfsConfig::Configure(const char *cFN, XrdOucEnv *envP)
        return false;
       }
 
+// All done
+//
+   tmp = (NoGo ? " failed." : " completed.");
+   Log.Say("------ ssi phase 1 initialization", tmp);
+   return !NoGo;
+}
+  
+/******************************************************************************/
+
+bool XrdSsiSfsConfig::Configure(XrdOucEnv *envP)
+{
+   const char *tmp;
+   int NoGo;
+
+// Print warm-up message
+//
+   Log.Say("++++++ ssi phase 2 initialization started.");
+
+// Now find the scheduler
+//
+   if (!envP || !(Sched = (XrdScheduler *)envP->GetPtr("XrdScheduler*")))
+      {Log.Emsg("Config", "Scheduler pointer is undefined!");
+       NoGo = 1;
+      } else NoGo = 0;
+
 // Now configure management functions
 //
-   if (!NoGo && ConfigObj(envP)) NoGo = 1;
+   if (!NoGo && ConfigObj()) NoGo = 1;
 
 // Now configure the cms
 //
@@ -197,10 +222,10 @@ bool XrdSsiSfsConfig::Configure(const char *cFN, XrdOucEnv *envP)
 // All done
 //
    tmp = (NoGo ? " failed." : " completed.");
-   Log.Say("------ ssi initialization", tmp);
+   Log.Say("------ ssi phase 2 initialization", tmp);
    return !NoGo;
 }
-  
+
 /******************************************************************************/
 /*                             C o n f i g C m s                              */
 /******************************************************************************/
@@ -252,7 +277,7 @@ int XrdSsiSfsConfig::ConfigCms(XrdOucEnv *envP)
 /*                             C o n f i g O b j                              */
 /******************************************************************************/
 
-int XrdSsiSfsConfig::ConfigObj(XrdOucEnv *envP)
+int XrdSsiSfsConfig::ConfigObj()
 {
    static const int minRSZ = 8192;
 
@@ -261,13 +286,6 @@ int XrdSsiSfsConfig::ConfigObj(XrdOucEnv *envP)
    if (maxRSZ < minRSZ) maxRSZ = minRSZ;
    BuffPool = new XrdOucBuffPool(minRSZ, maxRSZ);
    XrdSsiFile::SetMaxSz(maxRSZ);
-
-// Now find the scheduler
-//
-   if (!envP || !(Sched = (XrdScheduler *)envP->GetPtr("XrdScheduler*")))
-      {Log.Emsg("Config", "Scheduler pointer is undefined!");
-       return 1;
-      }
    return 0;
 }
   

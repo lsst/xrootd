@@ -39,6 +39,7 @@
   
 struct XrdVersionInfo;
 
+class  XrdOucEnv;
 class  XrdOucStream;
 class  XrdSecEntity;
   
@@ -65,6 +66,8 @@ public:
                             {eInfo.setErrInfo(ENOTSUP, "Not supported.");
                              return SFS_ERROR;
                             }
+
+        void           EnvInfo(XrdOucEnv *envP);
 
         int            exists(const char                *fileName,
                                     XrdSfsFileExistence &exists_flag,
