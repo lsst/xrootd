@@ -65,6 +65,15 @@
                curitem ->dlvar .prev = curitem
 
 /******************************************************************************/
+/*                         L o c a l   S t a t i c s                          */
+/******************************************************************************/
+  
+namespace
+{
+   std::string dsProperty("DataServer");
+}
+
+/******************************************************************************/
 /*                            D e s t r u c t o r                             */
 /******************************************************************************/
 
@@ -133,9 +142,12 @@ void XrdSsiSessReal::HandleResponse(XrdCl::XRootDStatus *status,
 // We are here because the open finally completed. Check for errors.
 //
    if (status->IsOK())
-      {if (sessNode) free(sessNode);
-       sessNode = strdup(epFile.GetDataServer().c_str());
-       sObj = this;
+      {std::string currNode;
+       if (epFile.GetProperty(dsProperty, currNode))
+          {if (sessNode) free(sessNode);
+           sessNode = strdup(currNode.c_str());
+           sObj = this;
+          } else resource->eInfo.Set("Unable to get node name!",EADDRNOTAVAIL);
       } else SetErr(*status, resource->eInfo);
 
 // Do appropriate callback. Be careful, as the below is set up to allow the
