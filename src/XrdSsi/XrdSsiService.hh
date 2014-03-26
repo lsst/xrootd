@@ -46,6 +46,7 @@
 //!              the following directives to configure the service:
 //!
 //!              all.role server        <--- Only for clustered configurations
+//!              oss.statlib  <path>/libXrdSsi.so [Optional, see QueryResource]
 //!              xrootd.fslib <path>/libXrdSsi.so
 //!              ssi.svclib   <path>/<your shared library>
 //-----------------------------------------------------------------------------
@@ -145,6 +146,26 @@ virtual bool   Provision(Resource       *resP,
                         ) = 0;
 
 //-----------------------------------------------------------------------------
+//! Obtain the status of a resource. When configured via oss.statlib directive,
+//! this is called server-side by the XrdSsiCluster object to see if a
+//! resource is available.
+//!
+//! @param  rName    Pointer to the resource name.
+//!
+//! @return          One of the rStat enums, as follows:
+//!                  notAvailable - resource not available.
+//!                   isAvailable - resource is  available and can be
+//!                                 immediately used, if necessary.
+//!                   isPending   - resource is  available but is not in an
+//!                                 immediately usable state, access may wait.
+//-----------------------------------------------------------------------------
+
+enum    rStat  {notAvailable = 0, isAvailable, isPending};
+
+virtual rStat  QueryResource(const char *rName)
+                            {(void)rName; return notAvailable;}
+
+//-----------------------------------------------------------------------------
 //! Stop the client-side service. This is never called server-side.
 //!
 //! @return true     Service has been stopped and this object has been deleted.
@@ -211,9 +232,12 @@ virtual       ~XrdSsiService() {}
           }
 
    @param  logP   pointer to the logger object for message routing.
-   @param  clsP   pointer to the cluster management object.
+   @param  clsP   pointer to the cluster management object. This pointer is null
+                  when a service object is being obtained by the clustering
+                  system itself for QueryResource() invocations.
    @param  cfgFn  pointer to the conifiguration file name.
    @param  parms  pointer to the conifiguration parameters or null if none.
+                  This pointer may be null.
 
    @return =0     the server object could not be created
    @return !0     pointer to the service object

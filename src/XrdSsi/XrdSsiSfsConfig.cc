@@ -124,6 +124,19 @@ XrdSsiSfsConfig::XrdSsiSfsConfig()
 }
 
 /******************************************************************************/
+/*                            D e s t r u c t o r                             */
+/******************************************************************************/
+  
+XrdSsiSfsConfig::~XrdSsiSfsConfig()
+{
+   if (ConfigFN) free(ConfigFN);
+   if (CmsLib)   free(CmsLib);
+   if (CmsParms) free(CmsParms);
+   if (SvcLib)   free(SvcLib);
+   if (SvcParms) free(SvcParms);
+}
+
+/******************************************************************************/
 /*                             C o n f i g u r e                              */
 /******************************************************************************/
 
@@ -202,18 +215,18 @@ bool XrdSsiSfsConfig::Configure(XrdOucEnv *envP)
 
 // Now find the scheduler
 //
-   if (!envP || !(Sched = (XrdScheduler *)envP->GetPtr("XrdScheduler*")))
+   if (envP && !(Sched = (XrdScheduler *)envP->GetPtr("XrdScheduler*")))
       {Log.Emsg("Config", "Scheduler pointer is undefined!");
        NoGo = 1;
       } else NoGo = 0;
 
 // Now configure management functions
 //
-   if (!NoGo && ConfigObj()) NoGo = 1;
+   if (!NoGo && envP && ConfigObj()) NoGo = 1;
 
 // Now configure the cms
 //
-   if (!NoGo && ConfigCms(envP)) NoGo = 1;
+   if (!NoGo && envP && ConfigCms(envP)) NoGo = 1;
 
 // Now configure the server
 //

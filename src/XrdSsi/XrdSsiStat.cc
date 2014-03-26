@@ -1,10 +1,11 @@
 /******************************************************************************/
 /*                                                                            */
-/*                          X r d S s i S f s . c c                           */
+/*                         X r d S s i S t a t . c c                          */
 /*                                                                            */
-/* (c) 2013 by the Board of Trustees of the Leland Stanford, Jr., University  */
+/* (c) 2014 by the Board of Trustees of the Leland Stanford, Jr., University  */
+/*                            All Rights Reserved                             */
 /*   Produced by Andrew Hanushevsky for Stanford University under contract    */
-/*               DE-AC02-76-SFO0515 with the Deprtment of Energy              */
+/*              DE-AC02-76-SFO0515 with the Department of Energy              */
 /*                                                                            */
 /* This file is part of the XRootD software suite.                            */
 /*                                                                            */
@@ -27,126 +28,102 @@
 /* specific prior written permission of the institution or contributor.       */
 /******************************************************************************/
 
-#include <unistd.h>
-#include <dirent.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <memory.h>
-#include <string.h>
-#include <stdio.h>
-#include <time.h>
-#include <netdb.h>
-#include <stdlib.h>
-#include <sys/param.h>
-#include <sys/stat.h>
-#include <sys/time.h>
 #include <sys/types.h>
-
-#include "XrdNet/XrdNetAddr.hh"
-
-#include "XrdSsi/XrdSsiSfs.hh"
-#include "XrdSsi/XrdSsiSfsConfig.hh"
-
-#include "XrdCms/XrdCmsClient.hh"
-
-#include "XrdSys/XrdSysError.hh"
-#include "XrdSys/XrdSysHeaders.hh"
-#include "XrdSys/XrdSysLogger.hh"
-#include "XrdSys/XrdSysPlatform.hh"
-#include "XrdSys/XrdSysPthread.hh"
-
-#include "XrdOuc/XrdOucEnv.hh"
-#include "XrdOuc/XrdOucERoute.hh"
-#include "XrdOuc/XrdOucLock.hh"
-#include "XrdOuc/XrdOucTList.hh"
-#include "XrdOuc/XrdOucTrace.hh"
-#include "XrdSec/XrdSecEntity.hh"
-#include "XrdSfs/XrdSfsAio.hh"
-#include "XrdSfs/XrdSfsInterface.hh"
+#include <sys/stat.h>
+#include <unistd.h>
+#include <stdlib.h>
 
 #include "XrdVersion.hh"
+#include "XrdOss/XrdOss.hh"
+#include "XrdOss/XrdOssStatInfo.hh"
+#include "XrdOuc/XrdOucEnv.hh"
+#include "XrdSsi/XrdSsiSfsConfig.hh"
+#include "XrdSsi/XrdSsiService.hh"
+#include "XrdSys/XrdSysError.hh"
 
-#ifdef AIX
-#include <sys/mode.h>
-#endif
+//------------------------------------------------------------------------------
+//! This file defines a default plug-in that can be used to handle stat()
+//! calls for the Scalable Service Interface.
+//------------------------------------------------------------------------------
+
 
 /******************************************************************************/
-/*                V e r s i o n   I d e n t i f i c a t i o n                 */
+/*                               E x t e r n s                                */
 /******************************************************************************/
-  
-XrdVERSIONINFO(XrdSfsGetFileSystem,ssi);
-
-/******************************************************************************/
-/*                        G l o b a l   O b j e c t s                         */
-/******************************************************************************/
-
-namespace
-{
-XrdSsiSfsConfig *Config;
-};
 
 namespace XrdSsi
 {
-XrdSysError      Log(0);
+extern XrdSsiService  *Service;
 
-XrdSysLogger    *Logger;
-
-XrdOucTrace      Trace(&Log);
+extern XrdSysError     Log;
 };
 
 using namespace XrdSsi;
 
 /******************************************************************************/
-/*                        S t a t i c   O b j e c t s                         */
-/******************************************************************************/
-  
-int               XrdSsiSfs::freeMax = 256;
-
-/******************************************************************************/
-/*                   X r d S f s G e t F i l e S y s t e m                    */
+/*                 X r d O s s S t a t I n f o R e s O n l y                  */
 /******************************************************************************/
   
 extern "C"
 {
-XrdSfsFileSystem *XrdSfsGetFileSystem(XrdSfsFileSystem *nativeFS,
-                                      XrdSysLogger     *logger,
-                                      const char       *configFn)
-{
-   static XrdSsiSfs       Sfs;
-   static XrdSsiSfsConfig myConfig;
-
-// Set pointer to the config
-//
-   Config = &myConfig;
-
-// No need to herald this as it's now the default filesystem
-//
-   Log.SetPrefix("ssi_");
-   Log.logger(logger);
-   Logger = logger;
-
-// Initialize the subsystems
-//
-   if (!myConfig.Configure(configFn)) return 0;
-
-// All done, we can return the callout vector to these routines.
-//
-   return &Sfs;
-}
-}
-
 /******************************************************************************/
-/*                               E n v I n f o                                */
+/*                        X r d O s s S t a t I n f o                         */
 /******************************************************************************/
   
-void XrdSsiSfs::EnvInfo(XrdOucEnv *envP)
+int XrdOssStatInfo(const char *path, struct stat *buff,
+                   int         opts, XrdOucEnv   *envP)
 {
-    if (!envP) Log.Emsg("EnvInfo", "No environmental information passed!");
-    if (!envP || !Config->Configure(envP)) abort();
+   static const int regFile = S_IFREG | S_IRUSR | S_IWUSR;
+   XrdSsiService::rStat rStat;
+
+// Check resource availability
+//
+   if (Service && (rStat = Service->QueryResource(path)))
+      {memset(buff, 0, sizeof(struct stat));
+       buff->st_mode = regFile;
+       if (rStat == XrdSsiService::isAvailable) return 0;
+       if (!(opts & XRDOSS_resonly)) {buff->st_mode |= S_IFBLK; return 0;}
+      }
+
+// Resource is not available
+//
+   errno = ENOENT;
+   return -1;
 }
 
 /******************************************************************************/
-/*                            g e t V e r s i o n                             */
+/*                    X r d O s s S t a t I n f o I n i t                     */
 /******************************************************************************/
+
+//------------------------------------------------------------------------------
+//! The following function is invoked by the plugin manager to obtain the
+//! function that is to be used for stat() calls.
+//------------------------------------------------------------------------------
   
-const char *XrdSsiSfs::getVersion() {return XrdVERSION;}
+XrdOssStatInfo_t XrdOssStatInfoInit(XrdOss        *native_oss,
+                                    XrdSysLogger  *Logger,
+                                    const char    *config_fn,
+                                    const char    *parms)
+{
+   XrdSsiSfsConfig Config;
+
+// Setup the logger
+//
+   Log.logger(Logger);
+
+// Process the configuration file so that we get he service object
+//
+   if (!Config.Configure(config_fn) || !Config.Configure((XrdOucEnv *)0))
+      return 0;
+
+// Return the stat function
+//
+    return (XrdOssStatInfo_t)XrdOssStatInfo;
+}
+};
+
+/******************************************************************************/
+/*                   V e r s i o n   I n f o r m a t i o n                    */
+/******************************************************************************/
+
+XrdVERSIONINFO(XrdOssStatInfoInit,XrdSsiStat);

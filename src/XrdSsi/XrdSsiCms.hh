@@ -4,7 +4,7 @@
 /*                                                                            */
 /*                          X r d S s i C m s . h h                           */
 /*                                                                            */
-/* (c) 2013 by the Board of Trustees of the Leland Stanford, Jr., University  */
+/* (c) 2014 by the Board of Trustees of the Leland Stanford, Jr., University  */
 /*                            All Rights Reserved                             */
 /*   Produced by Andrew Hanushevsky for Stanford University under contract    */
 /*              DE-AC02-76-SFO0515 with the Department of Energy              */
@@ -38,27 +38,44 @@ class XrdSsiCms : public XrdSsiCluster
 {
 public:
 
-        void   Added(const char *name, bool pend=false) {};
+        void   Added(const char *name, bool pend=false)
+                    {if (theCms) theCms->Added(name, pend);}
 
-XrdOucTList   *Managers() {return 0;}
+const char *
+const      *   Managers(int &mNum) {mNum = manNum; return manList;}
 
-        void   Removed(const char *name) {};
+        void   Removed(const char *name)
+                    {if (theCms) theCms->Removed(name);}
 
-        void   Resume (bool perm=true) {}
+        void   Resume (bool perm=true)
+                    {if (theCms) theCms->Resume(perm);}
 
-        void   Suspend(bool perm=true) {}
+        void   Suspend(bool perm=true)
+                    {if (theCms) theCms->Suspend(perm);}
 
-        int    Resource(int n)   {return 0;}
+        int    Resource(int n)
+                    {if (theCms) return theCms->Resource(n);
+                     return 0;
+                    }
 
-        int    Reserve (int n=1) {return 0;}
+        int    Reserve (int n=1)
+                    {if (theCms) return theCms->Reserve(n);
+                     return 0;
+                    }
 
-        int    Release (int n=1) {return 0;}
+        int    Release (int n=1)
+                    {if (theCms) return theCms->Release(n);
+                     return 0;
+                    }
 
-               XrdSsiCms(XrdCmsClient *cmsP) : theCms(cmsP) {}
-virtual       ~XrdSsiCms() {}
+               XrdSsiCms(XrdCmsClient *cmsP);
+
+virtual       ~XrdSsiCms();
 
 private:
 
-XrdCmsClient *theCms;
+XrdCmsClient  *theCms;
+char         **manList;
+int            manNum;
 };
 #endif

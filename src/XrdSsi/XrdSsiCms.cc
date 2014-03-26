@@ -2,7 +2,7 @@
 /*                                                                            */
 /*                          X r d S s i C m s . c c                           */
 /*                                                                            */
-/* (c) 2013 by the Board of Trustees of the Leland Stanford, Jr., University  */
+/* (c) 2014 by the Board of Trustees of the Leland Stanford, Jr., University  */
 /*                            All Rights Reserved                             */
 /*   Produced by Andrew Hanushevsky for Stanford University under contract    */
 /*              DE-AC02-76-SFO0515 with the Department of Energy              */
@@ -28,4 +28,50 @@
 /* specific prior written permission of the institution or contributor.       */
 /******************************************************************************/
 
-#include "XrdCms/XrdCmsCluster.hh"
+#include <stdio.h>
+
+#include "XrdOuc/XrdOucTList.hh"
+
+#include "XrdSsi/XrdSsiCms.hh"
+
+/******************************************************************************/
+/*                           C o n s t r u c t o r                            */
+/******************************************************************************/
+
+XrdSsiCms::XrdSsiCms(XrdCmsClient *cmsP) : theCms(cmsP)
+{  
+   XrdOucTList *tP, *stP = cmsP->Managers();
+   char buff[1024];
+   int i;
+
+// Count up the number of entries in the manager list
+//
+   manNum = 0;
+   tP     = stP;
+   while(tP) {manNum++; tP = tP->next;}
+
+// Allocate an array of teh right size
+//
+   manList = new char*[manNum];
+
+// Format out the managers
+//
+   for (i = 0; i < manNum; i++)
+       {sprintf(buff, "%s:%d", stP->text, stP->val);
+        manList[i] = strdup(buff);
+        stP = stP->next;
+       }
+}
+
+/******************************************************************************/
+/*                            D e s t r u c t o r                             */
+/******************************************************************************/
+  
+XrdSsiCms::~XrdSsiCms()
+{
+   int i;
+
+   for (i = 0; i < manNum; i++) free(manList[i]);
+
+   delete[] manList;
+}

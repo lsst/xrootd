@@ -53,7 +53,7 @@ bool             Configure(const char *cFN);
 bool             Configure(XrdOucEnv *envP);
 
                  XrdSsiSfsConfig();
-                ~XrdSsiSfsConfig() {}
+                ~XrdSsiSfsConfig();
 
 private:
 

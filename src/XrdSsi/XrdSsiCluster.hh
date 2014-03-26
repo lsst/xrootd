@@ -37,8 +37,6 @@
 //! valid for the duration of the program.
 //------------------------------------------------------------------------------
 
-class XrdOucTList;
-
 class XrdSsiCluster
 {
 public:
@@ -57,12 +55,14 @@ virtual void   Added(const char *name, bool pend=false) = 0;
 //! Obtain the list of nodes that are managing this cluster along with their
 //! associated index numbers, origin 1.
 //!
-//! @return The list of nodes being used. The list is considered permanent
-//!         and is not deleted.
+//! @param  mNum Palce to put the number of managers in the returned array.
+//!
+//! @return The vector of nodes being used with mNum set to the number of
+//!         elements. The list is considered permanent and is not deleted.
 //------------------------------------------------------------------------------
 
 virtual
-XrdOucTList   *Managers() = 0;
+const  char  * const *Managers(int &mNum) = 0;
 
 //------------------------------------------------------------------------------
 //! Notify the cluster that a name is no longer available on this server node.

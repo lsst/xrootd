@@ -30,6 +30,7 @@ XrdSsi/XrdSsiSessReal.cc               XrdSsi/XrdSsiSessReal.hh
                                        XrdSsi/XrdSsiSession.hh
 XrdSsi/XrdSsiSfs.cc                    XrdSsi/XrdSsiSfs.hh
 XrdSsi/XrdSsiSfsConfig.cc              XrdSsi/XrdSsiSfsConfig.hh
+XrdSsi/XrdSsiStat.cc
                                        XrdSsi/XrdSsiStream.hh
 XrdSsi/XrdSsiTaskReal.cc               XrdSsi/XrdSsiTaskReal.hh
                                        XrdSsi/XrdSsiTrace.hh)
