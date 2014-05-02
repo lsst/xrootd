@@ -95,7 +95,8 @@ virtual void   ProvisionDone(XrdSsiSession *sessP) = 0; //!< Callback
 //! Constructor
 //!
 //! @param  rname    points to the name of the resource and must remain valid
-//!                  until provisioning ends.
+//!                  until provisioning ends. The resource name must start a
+//!                  slash. Duplicate slashes amd dot-shashes are compressed.
 //!
 //! @param  havoid   if not null then points to a comma separated list of
 //!                  hostnames to avoid using to provision the resource and

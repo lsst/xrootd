@@ -88,6 +88,24 @@ void XrdSsiLogger::Msgf(const char *pfx, const char *fmt, ...)
 }
 
 /******************************************************************************/
+/*                                  M s g v                                   */
+/******************************************************************************/
+
+void XrdSsiLogger::Msgv(const char *pfx, const char *fmt, va_list aP)
+{
+   char buffer[2048];
+
+// Format the message
+//
+   vsnprintf(buffer, sizeof(buffer), fmt, aP);
+
+// Route it
+//
+   if (pfx) Log.Emsg(pfx, buffer);
+      else  Log.Say(buffer);
+}
+
+/******************************************************************************/
 /*                                  T B e g                                   */
 /******************************************************************************/
   

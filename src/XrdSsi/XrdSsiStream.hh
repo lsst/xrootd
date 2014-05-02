@@ -96,7 +96,7 @@ virtual Buffer *GetBuff(XrdSsiErrInfo &eInfo, int &dlen, bool &last)
 //-----------------------------------------------------------------------------
 //! Asynchronously obtain data from a passive stream (client-side only).
 //!
-//! @param  rqstP The request object whose ProcessResponse() method is to be
+//! @param  rqstP The request object whose ProcessResponseData() method is to be
 //!               called when data or an async error is ready for proccesing.
 //!               Also see XrdSsiRequest::GetResponseData() helper method.
 //! @param  buff  pointer to the buffer to receive the data. The buffer must

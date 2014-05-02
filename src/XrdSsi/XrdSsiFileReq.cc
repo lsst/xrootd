@@ -165,7 +165,7 @@ void XrdSsiFileReq::DoIt()
            const char *eText = eInfo.Get(eCode);
            if (!eCode) eCode = EPROTO;
            if (!eText) eText = "Server session logic error!";
-           if (SetResponse(eCode, eText))
+           if (SetErrResponse(eText, eCode))
               Log.Emsg("DoIt", tident, "Invalid session process return!!");
           }
       } else {
@@ -609,7 +609,8 @@ int XrdSsiFileReq::Send(XrdSfsDio *sfDio, XrdSfsXferSize blen)
    switch(Resp->rType)
          {case XrdSsiRespInfo::isData:
                if (blen > 0)
-                  {sfVec[1].buffer = Resp->buff+respOff; sfVec[1].fdnum = -1;
+                  {sfVec[1].buffer = (char *)Resp->buff+respOff;
+                   sfVec[1].fdnum  = -1;
                    if (blen > respLen)
                       {blen = respLen; myState = odRsp;
                       } else {

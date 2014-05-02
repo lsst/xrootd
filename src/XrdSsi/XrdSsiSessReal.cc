@@ -268,7 +268,7 @@ bool XrdSsiSessReal::ProcessRequest(XrdSsiRequest *reqP, unsigned short tOut)
 // Initialize the task the task will take ownership of the request object
 //
    tP->Init(reqP, tOut);
-   DBG("Task="<<hex<<tP<<dec<<" procsessing id=" <<nextTID-1);
+   DBG("Task="<<hex<<tP<<dec<<" processing id=" <<nextTID-1);
 
 // Construct the info for this request
 //

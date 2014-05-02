@@ -41,7 +41,7 @@
 class XrdSsiStream;
 
 struct  XrdSsiRespInfo
-       {union {      char   *buff;    //!< ->buffer     when rType == isData;
+       {union {const char   *buff;    //!< ->buffer     when rType == isData;
                const char   *eMsg;    //!< ->msg text   when rType == isError;
                long long     fsize;   //!< ->file size  when rType == isFile;
                XrdSsiStream *strmP;   //!< ->SsiStream  when rType == isStream;

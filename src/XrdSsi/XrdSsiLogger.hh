@@ -28,6 +28,8 @@
 /* be used to endorse or promote products derived from this software without  */
 /* specific prior written permission of the institution or contributor.       */
 /******************************************************************************/
+
+#include <stdarg.h>
  
 //-----------------------------------------------------------------------------
 //! The XrdSsiLogger object is used to route messages to the default logfile.
@@ -50,7 +52,7 @@ static void Msg(const char *pfx,    const char *txt1,
                 const char *txt2=0, const char *txt3=0);
 
 //-----------------------------------------------------------------------------
-//! Insert a formated error message into the log file.
+//! Insert a formated error message into the log file using variable args.
 //!
 //! @param  pfx  !0 -> the text to prefix the message; the message is formed as
 //!                    <timestamp> <pfx>: <formated_text>\n
@@ -62,6 +64,20 @@ static void Msg(const char *pfx,    const char *txt1,
 //-----------------------------------------------------------------------------
 
 static void Msgf(const char *pfx, const char *fmt, ...);
+
+//-----------------------------------------------------------------------------
+//! Insert a formated error message into the log file using a va_list.
+//!
+//! @param  pfx  !0 -> the text to prefix the message; the message is formed as
+//!                    <timestamp> <pfx>: <formated_text>\n
+//!         pfx  =0 -> add message to the log without a timestamp or prefix.
+//! @param  fmt  the message formatting template (i.e. sprintf format). Note
+//!              that a newline character is always appended to the message.
+//! @param  aP   the arguments that should be used with the template. The
+//!              formatted message is truncated at 2048 bytes.
+//-----------------------------------------------------------------------------
+
+static void Msgv(const char *pfx, const char *fmt, va_list aP);
 
 //-----------------------------------------------------------------------------
 //! Define helper functions to allow ostream cerr output to appear in the log.

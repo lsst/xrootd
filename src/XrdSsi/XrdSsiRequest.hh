@@ -53,12 +53,12 @@
 //!
 //! This is an abstract class and several methods need to be implemented:
 //!
-//! GetRequest()       Manndatory to supply the buffer holding the request along
-//!                    with its length.
-//! RelRequestBuffer() Optional, allows memory optimization.
-//! ProcessResponse()  Initial response: Mandatary
-//!                    Data    response: Mandatory ony if response data is
-//!                                      asynchronously received.
+//! GetRequest()          Manndatory to supply the buffer holding the request
+//!                       along with its length.
+//! RelRequestBuffer()    Optional, allows memory optimization.
+//! ProcessResponse()     Initial response: Mandatary
+//! ProcessResponseData() Data    response: Mandatory ony if response data is
+//!                                         asynchronously received.
 //-----------------------------------------------------------------------------
 
 class XrdSsiResponder;
@@ -162,13 +162,12 @@ virtual bool    ProcessResponse(const XrdSsiRespInfo &rInfo, bool isOK=true)=0;
 //! stream SetBuff() call.
 //!
 //! @param buff  Pointer to the buffer given to XrdSsiStream::SetBuff().
-//! @param blen  The number of bytes in buff or an error indication in <0.
+//! @param blen  The number of bytes in buff or an error indication if blen < 0.
 //! @param last  true  This is the last stream segment, no more data remains.
 //! @param       false More data may remain in the stream.
 //-----------------------------------------------------------------------------
 
-virtual void    ProcessResponse(char *buff, int blen, bool last) {}
-
+virtual void    ProcessResponseData(char *buff, int blen, bool last) {}
 
 //-----------------------------------------------------------------------------
 //! A handy pointer to allow for chaining these objects. It is initialized to 0.

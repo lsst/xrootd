@@ -147,8 +147,8 @@ void XrdSsiTaskReal::HandleResponse(XrdCl::XRootDStatus *status,
    dBuff = dataBuff;
    mhPend = false;
    sessP->UnLock();
-   DBG("Task Handler calling ProcessResponse for data.");
-   rqstP->ProcessResponse(dBuff, ibRead, tStat == isDone);
+   DBG("Task Handler calling ProcessResponseData.");
+   rqstP->ProcessResponseData(dBuff, ibRead, tStat == isDone);
 }
 
 /******************************************************************************/
@@ -221,7 +221,7 @@ void XrdSsiTaskReal::RespErr(XrdCl::XRootDStatus *status) // Session is locked!
 // Reflect an error to the request object.
 //
    eText = eInfo.Get(eNum);
-   SetResponse(eNum, eText);
+   SetErrResponse(eText, eNum);
 }
 
 /******************************************************************************/

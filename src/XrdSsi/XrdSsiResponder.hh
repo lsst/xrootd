@@ -125,6 +125,27 @@ enum Status {wasPosted=0, //!< Success: The response was successfully posted
             };
 
 //-----------------------------------------------------------------------------
+//! Set an error response for a request.
+//!
+//! @param  eMsg  the message describing the error. The message is copied to
+//!               private storage.
+//! @param  eNum  the errno associated with the error.
+//!
+//! @return       See Status enum for possible values.
+//-----------------------------------------------------------------------------
+
+inline Status  SetErrResponse(const char *eMsg, int eNum)
+                          {XrdSsiRequest *rP = reqP;
+                           if (!reqP) return notPosted;
+                           reqP->eInfo.Set(eMsg, eNum);
+                           reqP->Resp.eMsg  = reqP->eInfo.Get(reqP->Resp.eNum);
+                           reqP->Resp.rType = XrdSsiRespInfo::isError;
+                           reqP = 0;
+                           return (rP->ProcessResponse(rP->Resp)
+                                   ? wasPosted : notActive);
+                          }
+
+//-----------------------------------------------------------------------------
 //! Set a memory buffer containing data as the request response.
 //!
 //! @param  buff  pointer to a buffer holding the response. The buffer must
@@ -134,32 +155,11 @@ enum Status {wasPosted=0, //!< Success: The response was successfully posted
 //! @return       See Status enum for possible values.
 //-----------------------------------------------------------------------------
 
-inline Status  SetResponse(char *buff, int blen)
+inline Status  SetResponse(const char *buff, int blen)
                           {XrdSsiRequest *rP = reqP;
                            if (!reqP) return notPosted;
                            reqP->Resp.buff  = buff; reqP->Resp.blen  = blen;
                            reqP->Resp.rType = XrdSsiRespInfo::isData;
-                           reqP = 0;
-                           return (rP->ProcessResponse(rP->Resp)
-                                   ? wasPosted : notActive);
-                          }
-
-//-----------------------------------------------------------------------------
-//! Set an error response for a request.
-//!
-//! @param  eNum  the errno associated with the error.
-//! @param  eMsg  the message describing the error. The message is copied to
-//!               private storage.
-//!
-//! @return       See Status enum for possible values.
-//-----------------------------------------------------------------------------
-
-inline Status  SetResponse(int eNum, const char *eMsg)
-                          {XrdSsiRequest *rP = reqP;
-                           if (!reqP) return notPosted;
-                           reqP->eInfo.Set(eMsg, eNum);
-                           reqP->Resp.eMsg  = reqP->eInfo.Get(reqP->Resp.eNum);
-                           reqP->Resp.rType = XrdSsiRespInfo::isError;
                            reqP = 0;
                            return (rP->ProcessResponse(rP->Resp)
                                    ? wasPosted : notActive);
