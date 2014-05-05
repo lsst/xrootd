@@ -144,7 +144,6 @@ XrdSsiFile::XrdSsiFile(const char *user, int monid) : XrdSfsFile(user, monid)
    reqLeft    = 0;
    sessP      = 0;
    isOpen     = false;
-   noMore     = false;
    inProg     = false;
    viaDel     = false;
 }
@@ -434,14 +433,17 @@ XrdSfsXferSize XrdSsiFile::read(XrdSfsFileOffset  offset,    // In
    XrdSsiFileReq *rqstP;
    XrdSfsXferSize retval;
    int            reqID = rInfo.RR.Id & XrdSsiRRTable<XrdSsiFileReq>::maxID;
+   bool           noMore = false;
 
-// Find the request object
+// Find the request object. If not there we may have encountered an eof
 //
-   if (!(rqstP = rTab.LookUp(reqID))) return Emsg(epname, ESRCH, "read");
-
-// If we reached EOF return a zero length read
-//
-   if (noMore) return 0;
+   if (!(rqstP = rTab.LookUp(reqID)))
+      {if (eofVec.IsSet(reqID))
+          {eofVec.UnSet(reqID);
+           return 0;
+          }
+        return Emsg(epname, ESRCH, "read");
+       }
 
 // Simply effect the read via the request object
 //
@@ -452,6 +454,7 @@ XrdSfsXferSize XrdSsiFile::read(XrdSfsFileOffset  offset,    // In
    if (noMore)
       {rqstP->Finalize();
        rTab.Del(reqID);
+       eofVec.Set(reqID);
       }
 
 // All done
@@ -678,6 +681,7 @@ XrdSfsXferSize XrdSsiFile::write(XrdSfsFileOffset      offset,    // In
 // Indicate we are in the progress of collecting the request arguments
 //
    inProg = true;
+   eofVec.UnSet(reqID);
 
 // Do some debugging
 //

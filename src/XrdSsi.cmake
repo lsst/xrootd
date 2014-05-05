@@ -13,6 +13,7 @@ set( XRD_SSI_SOVERSION 1 )
 add_library(
   XrdSsi
   SHARED
+                                       XrdSsi/XrdSsiBVec.hh
                                        XrdSsi/XrdSsiCluster.hh
 XrdSsi/XrdSsiCms.cc                    XrdSsi/XrdSsiCms.hh
                                        XrdSsi/XrdSsiErrInfo.hh

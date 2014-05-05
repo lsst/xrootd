@@ -33,6 +33,7 @@
 #include <sys/types.h>
 
 #include "XrdSfs/XrdSfsInterface.hh"
+#include "XrdSsi/XrdSsiBVec.hh"
 #include "XrdSsi/XrdSsiFileReq.hh"
 #include "XrdSsi/XrdSsiRRTable.hh"
 #include "XrdSys/XrdSysPthread.hh"
@@ -132,10 +133,10 @@ XrdSsiSession           *sessP;
 int                      reqSize;
 int                      reqLeft;
 bool                     isOpen;
-bool                     noMore;
 bool                     inProg;
 bool                     viaDel;
 
+XrdSsiBVec               eofVec;
 XrdSsiRRTable<XrdSsiFileReq> rTab;
 };
 #endif
