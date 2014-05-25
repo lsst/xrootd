@@ -79,8 +79,12 @@ namespace
 
 XrdSsiSessReal::~XrdSsiSessReal()
 {
+   XrdSsiTaskReal *tP;
+
    if (sessName) free(sessName);
    if (sessNode) free(sessNode);
+
+   while((tP = freeTask)) {freeTask = tP->attList.next; delete tP;}
 }
 
 /******************************************************************************/

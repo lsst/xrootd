@@ -560,6 +560,7 @@ void XrdSsiFileReq::Recycle()
 // Add to queue unless we have too many of these
 //
    aqMutex.Lock();
+   if (tident) {free(tident); tident = 0;}
    if (freeCnt >= freeMax) {aqMutex.UnLock(); delete this;}
       else {nextReq = freeReq;
             freeReq = this;

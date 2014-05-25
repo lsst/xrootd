@@ -45,10 +45,10 @@
 //! implementation class and its agent classes (i.e. classes that do work on
 //! its behalf) inherit this class.
 //!
-//! When the XrdSsiResponder.hh::SetResponse() method is called to post a response
-//! the request object's ProcessResponse() method is called. Owbership of the
+//! When the XrdSsiResponder::SetResponse() method is called to post a response
+//! the request object's ProcessResponse() method is called. Ownership of the
 //! request object does not revert back to the object's creator until the
-//! XrdSsiRequest::Finished() menthod returns. This allows the session to
+//! XrdSsiRequest::Finished() method returns. This allows the session to
 //! reclaim any response data buffer or stream resource before it gives up
 //! control of the request object.
 //!
