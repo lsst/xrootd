@@ -615,10 +615,12 @@ int XrdSsiFile::truncate(XrdSfsFileOffset  flen)  // In
          {case XrdSsiRRInfo::Rwt:
                respCB = error.getErrCB(respCBarg);
                if (rqstP->WantResponse(respCB, respCBarg))
-                  {DEBUG(reqID <<':' <<gigID <<" resp ready");
+                  {DEBUG(reqID <<':' <<gigID <<" resp ready "
+                               <<hex <<respCBarg <<dec);
                    return SFS_OK;
                   }
-               DEBUG(reqID <<':' <<gigID <<" resp not ready");
+               DEBUG(reqID <<':' <<gigID <<" resp not ready "
+                           <<hex <<respCBarg <<dec);
                error.setErrCB((XrdOucEICB *)rqstP);
                return SFS_STARTED;
                break;

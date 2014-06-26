@@ -783,7 +783,7 @@ void XrdSsiFileReq::WakeUp() // Called with myMutex locked!
 
 // Do some debugging
 //
-   DEBUGXQ("");
+   DEBUGXQ("respCBarg=" <<hex <<respCBarg <<dec);
 
 // Tell the client to issue a read now. We don't need a callback on this so
 // the callback handler will delete the errinfo object for us.
