@@ -1,0 +1,11 @@
+--- xrootd.orig/src/XrdSsi/XrdSsiFileReq.cc	2014-12-08 10:44:07.000000000 -0800
++++ xrootd/src/XrdSsi/XrdSsiFileReq.cc	2014-12-08 10:44:19.000000000 -0800
+@@ -135,7 +135,7 @@
+        nP->sessP  = sP;
+        nP->cbInfo = eiP;
+        nP->reqID = rnum;
+-       snprintf(nP->rID, sizeof(rID), "%d:", rnum);
++       snprintf(nP->rID, sizeof(nP->rID), "%d:", rnum);
+       }
+ 
+ // Return the pointer
