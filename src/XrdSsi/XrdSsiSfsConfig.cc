@@ -206,8 +206,11 @@ bool XrdSsiSfsConfig::Configure(const char *cFN)
 
 bool XrdSsiSfsConfig::Configure(XrdOucEnv *envP)
 {
+   static char theSSI[] = {'s', 's', 'i', 0};
+   static char **myArgv, *dfltArgv[] = {0, 0};
+   XrdOucEnv    *xrdEnvP;
    const char *tmp;
-   int NoGo;
+   int myArgc, NoGo;
 
 // Print warm-up message
 //
@@ -220,6 +223,21 @@ bool XrdSsiSfsConfig::Configure(XrdOucEnv *envP)
        NoGo = 1;
       } else NoGo = 0;
 
+// Find our arguments, if any
+//
+   if ((xrdEnvP = (XrdOucEnv *)envP->GetPtr("xrdEnv*"))
+   &&  (myArgv  = (char **)xrdEnvP->GetPtr("xrdssi.argv**")))
+      myArgc = xrdEnvP->GetInt("xrdssi.argc");
+
+// Verify that we have some and substitute if not
+//
+   if (!myArgv || myArgc < 1)
+      {if (!(dfltArgv[0] = (char *)xrdEnvP->GetPtr("argv[0]")))
+          dfltArgv[0] = theSSI;
+       myArgv = dfltArgv;
+       myArgc = 1;
+      }
+
 // Now configure management functions
 //
    if (!NoGo && envP && ConfigObj()) NoGo = 1;
@@ -230,7 +248,7 @@ bool XrdSsiSfsConfig::Configure(XrdOucEnv *envP)
 
 // Now configure the server
 //
-   if (!NoGo && ConfigSvc()) NoGo = 1;
+   if (!NoGo && ConfigSvc(myArgv, myArgc)) NoGo = 1;
 
 // All done
 //
@@ -306,11 +324,10 @@ int XrdSsiSfsConfig::ConfigObj()
 /*                             C o n f i g S v c                              */
 /******************************************************************************/
 
-int XrdSsiSfsConfig::ConfigSvc()
+int XrdSsiSfsConfig::ConfigSvc(char **myArgv, int myArgc)
 {
    XrdSysPlugin *myLib;
-   XrdSsiService *(*ep)(XrdSsiLogger *, XrdSsiCluster *,
-                        const char   *, const char    *);
+   XrdSsiServService_t ep;
 
 // Make sure a library was specified
 //
@@ -326,15 +343,14 @@ int XrdSsiSfsConfig::ConfigSvc()
 
 // Now get the entry point of the object creator
 //
-   ep = (XrdSsiService *(*)(XrdSsiLogger *, XrdSsiCluster *,
-                            const char   *, const char    *))
-                           (myLib->getPlugin("XrdSsiGetServerService"));
+   ep = (XrdSsiServService_t)(myLib->getPlugin("XrdSsiGetServerService"));
    if (!ep) return 1;
 
 // Get the Object now
 //
    myLib->Persist(); delete myLib;
-   Service = ep(&SsiLogger, (XrdSsiCluster *)SsiCms, ConfigFN, SvcParms);
+   Service = ep(&SsiLogger, (XrdSsiCluster *)SsiCms, ConfigFN,
+                             SvcParms, myArgc, myArgv);
    return Service == 0;
 }
   

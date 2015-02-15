@@ -220,6 +220,16 @@ virtual       ~XrdSsiService() {}
 /******************************************************************************/
 /*                           S e r v e r - S i d e                            */
 /******************************************************************************/
+
+class XrdSsiCluster;
+class XrdSsiLogger;
+
+typedef XrdSsiService *(*XrdSsiServService_t)(XrdSsiLogger  *logP,
+                                              XrdSsiCluster *clsP,
+                                              const char    *cfgFn,
+                                              const char    *parms,
+                                                    int      argc,
+                                                    char   **argv);
   
 /*! Obtain a server-side service object (only one is ever obtained).
     When building a server-side shared library plugin, the following "C" entry
@@ -229,7 +239,9 @@ virtual       ~XrdSsiService() {}
           {XrdSsiService *XrdSsiGetServerService(XrdSsiLogger  *logP,
                                                  XrdSsiCluster *clsP,
                                                  const char    *cfgFn,
-                                                 const char    *parms);
+                                                 const char    *parms,
+                                                       int      argc,
+                                                       char   **argv);
           }
 
    @param  logP   pointer to the logger object for message routing.
@@ -239,6 +251,11 @@ virtual       ~XrdSsiService() {}
    @param  cfgFn  pointer to the conifiguration file name.
    @param  parms  pointer to the conifiguration parameters or null if none.
                   This pointer may be null.
+   @param  argc   The count of command line arguments (always >= 1).
+   @param  argv   Pointer to a null terminated array of tokenized command line
+                  arguments. These arguments are taken from the command line
+                  after the "-+xrdssi" option (see invoking xrootd), if present.
+                  The first argument is always the same as argv[0] in main().
 
    @return =0     the server object could not be created
    @return !0     pointer to the service object

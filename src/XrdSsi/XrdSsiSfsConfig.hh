@@ -68,7 +68,7 @@ int           roleID;
 
 int           ConfigCms(XrdOucEnv *envP);
 int           ConfigObj();
-int           ConfigSvc();
+int           ConfigSvc(char **myArgv, int myArgc);
 int           ConfigXeq(char *var);
 int           Xlib(const char *lName, char **lPath, char **lParm);
 int           Xopts();
