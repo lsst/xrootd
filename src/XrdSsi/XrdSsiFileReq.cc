@@ -456,7 +456,7 @@ XrdSfsXferSize XrdSsiFileReq::Read(bool           &done,      // Out
                nbytes = (Resp->strmP->Type() == XrdSsiStream::isActive ?
                          readStrmA(Resp->strmP, buff, blen)
                       :  readStrmP(Resp->strmP, buff, blen));
-               done = strmEOF;
+               done = strmEOF && strBuff == 0;
                return nbytes;
                break;
           default: break;
