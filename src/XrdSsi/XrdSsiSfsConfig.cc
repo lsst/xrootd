@@ -207,10 +207,10 @@ bool XrdSsiSfsConfig::Configure(const char *cFN)
 bool XrdSsiSfsConfig::Configure(XrdOucEnv *envP)
 {
    static char theSSI[] = {'s', 's', 'i', 0};
-   static char **myArgv, *dfltArgv[] = {0, 0};
+   static char **myArgv = 0, *dfltArgv[] = {0, 0};
    XrdOucEnv    *xrdEnvP;
    const char *tmp;
-   int myArgc, NoGo;
+   int myArgc = 0, NoGo;
 
 // Print warm-up message
 //
