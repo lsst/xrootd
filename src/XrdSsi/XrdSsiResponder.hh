@@ -141,7 +141,7 @@ inline Status  SetErrResponse(const char *eMsg, int eNum)
                            reqP->Resp.eMsg  = reqP->eInfo.Get(reqP->Resp.eNum);
                            reqP->Resp.rType = XrdSsiRespInfo::isError;
                            reqP = 0;
-                           return (rP->ProcessResponse(rP->Resp)
+                           return (rP->ProcessResponse(rP->Resp, false)
                                    ? wasPosted : notActive);
                           }
 
