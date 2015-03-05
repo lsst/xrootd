@@ -75,7 +75,7 @@ int             XrdSsiFileReq::freeMax = 256;
 int             XrdSsiFileReq::cbRetD  = SFS_DATA;
 
 const char     *XrdSsiFileReq::stID[XrdSsiFileReq::rsEnd] =
-                                   {" [wtReq] ", " [xqReq] ",
+                                   {" [wtReq] ", " [xqReq] ", " [wtRsp] ",
                                     " [doRsp] ", " [odRsp] ", " [erRsp] "
                                    };
 
@@ -492,7 +492,7 @@ do{if (strBuff)
        memcpy(buff, strBuff->data+respOff, respLen);
        xlen += respLen;
        strBuff->Recycle(); strBuff = 0;
-       if (respLen == blen) return xlen;
+       if (respLen == blen) break;
        blen -= respLen; buff += respLen;
       }
 
