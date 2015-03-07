@@ -492,19 +492,19 @@ do{if (strBuff)
        memcpy(buff, strBuff->data+respOff, respLen);
        xlen += respLen;
        strBuff->Recycle(); strBuff = 0;
-       if (respLen == blen) break;
        blen -= respLen; buff += respLen;
       }
 
-   if (strmEOF) myState = odRsp;
-      else {respLen = blen; respOff = 0;
-            strBuff = strmP->GetBuff(eObj, respLen, strmEOF);
-           }
+   if (!strmEOF && blen)
+      {respLen = blen; respOff = 0;
+       strBuff = strmP->GetBuff(eObj, respLen, strmEOF);
+      }
   } while(strBuff);
 
-// On eof, if we have some data to return, do so
+// Check if we have data to return
 //
    if (strmEOF) {myState = odRsp; return xlen;}
+      else if (!blen) return xlen;
 
 // Report the error
 //
