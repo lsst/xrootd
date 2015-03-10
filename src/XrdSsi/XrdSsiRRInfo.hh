@@ -30,21 +30,25 @@
 /* specific prior written permission of the institution or contributor.       */
 /******************************************************************************/
 
+#include "XrdSys/XrdSysPlatform.hh"
+
 struct XrdSsiRRInfo
 {
-union {unsigned long long Info;
-struct{char               Cmd;
-       char               Rsv[2];
-       char               Id;
-       int                Size;
-      }                   RR;
-      };
+char               Cmd;
+char               Rsv[2];
+char               Id;
+int                Size;
+
+inline unsigned long long Info()
+       {return (static_cast<unsigned long long>(Cmd)<<56LL)
+              |(static_cast<unsigned long long>(Id )<<32LL) | Size;}
 
 static const char  Rxq = 0;
 static const char  Rwt = 1;
 static const char  Can = 2;
 
-       XrdSsiRRInfo(unsigned long long ival=0) : Info(ival) {}
+       XrdSsiRRInfo(unsigned long long ival=0) : Cmd(ival>>56), Id(ival>>32),
+                                                Size(ival & 0xffffffff) {}
       ~XrdSsiRRInfo() {}
 };
 #endif

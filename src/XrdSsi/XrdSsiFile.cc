@@ -269,7 +269,7 @@ int      XrdSsiFile::fctl(const int           cmd,
 // Grab the request identifier
 //
    rInfo = (XrdSsiRRInfo *)args;
-   reqID = rInfo->RR.Id & XrdSsiRRTable<XrdSsiFileReq>::maxID;
+   reqID = rInfo->Id & XrdSsiRRTable<XrdSsiFileReq>::maxID;
 
 // Do some debugging
 //
@@ -432,7 +432,7 @@ XrdSfsXferSize XrdSsiFile::read(XrdSfsFileOffset  offset,    // In
    XrdSsiRRInfo   rInfo(offset);
    XrdSsiFileReq *rqstP;
    XrdSfsXferSize retval;
-   int            reqID = rInfo.RR.Id & XrdSsiRRTable<XrdSsiFileReq>::maxID;
+   int            reqID = rInfo.Id & XrdSsiRRTable<XrdSsiFileReq>::maxID;
    bool           noMore = false;
 
 // Find the request object. If not there we may have encountered an eof
@@ -516,7 +516,7 @@ int XrdSsiFile::SendData(XrdSfsDio         *sfDio,
    static const char *epname = "SendData";
    XrdSsiRRInfo   rInfo(offset);
    XrdSsiFileReq *rqstP;
-   int rc, reqID = rInfo.RR.Id & XrdSsiRRTable<XrdSsiFileReq>::maxID;
+   int rc, reqID = rInfo.Id & XrdSsiRRTable<XrdSsiFileReq>::maxID;
 
 // Find the request object
 //
@@ -602,8 +602,8 @@ int XrdSsiFile::truncate(XrdSfsFileOffset  flen)  // In
    XrdOucEICB    *respCB;
    XrdSsiFileReq *rqstP;
    XrdSsiRRInfo   rInfo(flen);
-   int reqID = rInfo.RR.Id  & XrdSsiRRTable<XrdSsiFileReq>::maxID;
-   int reqXQ = rInfo.RR.Cmd;
+   int reqID = rInfo.Id  & XrdSsiRRTable<XrdSsiFileReq>::maxID;
+   int reqXQ = rInfo.Cmd;
 
 // Find the request
 //
@@ -663,7 +663,7 @@ XrdSfsXferSize XrdSsiFile::write(XrdSfsFileOffset      offset,    // In
 {
    static const char *epname = "write";
    XrdSsiRRInfo   rInfo(offset);
-   int reqID = rInfo.RR.Id & XrdSsiRRTable<XrdSsiFileReq>::maxID;
+   int reqID = rInfo.Id & XrdSsiRRTable<XrdSsiFileReq>::maxID;
 
 // Check if we are reading a request segment and handle that. This assumes that
 // writes to different requests cannot be interleaved (which they can't be).
@@ -676,7 +676,7 @@ XrdSfsXferSize XrdSsiFile::write(XrdSfsFileOffset      offset,    // In
 
 // The offset contains the actual size of the request, make sure it's OK
 //
-   reqSize = ntohl(rInfo.RR.Size);
+   reqSize = ntohl(rInfo.Size);
    if (reqSize <= 0 || reqSize > maxRSZ || reqSize < blen)
       return Emsg(epname, EFBIG, "write");
 

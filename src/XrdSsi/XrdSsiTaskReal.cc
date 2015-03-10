@@ -93,11 +93,11 @@ void XrdSsiTaskReal::HandleResponse(XrdCl::XRootDStatus *status,
          {case isWrite:
                if (!aOK) {RespErr(status); return;}
                tStat = isSync;
-               rInfo.RR.Id = tskID; rInfo.RR.Cmd = XrdSsiRRInfo::Rwt;
+               rInfo.Id = tskID; rInfo.Cmd = XrdSsiRRInfo::Rwt;
                DBG("Task Handler calling RelBuff.");
                ReleaseRequestBuffer();
                DBG("Task Handler calling trunc.");
-               epStatus = sessP->epFile.Truncate(rInfo.Info,
+               epStatus = sessP->epFile.Truncate(rInfo.Info(),
                                                  (ResponseHandler *)this,
                                                  tmOut);
                if (!epStatus.IsOK()) {RespErr(&epStatus); return;}
@@ -184,9 +184,9 @@ bool XrdSsiTaskReal::Kill() // Called with session mutex locked!
 // If we are here then the request is potentially still active at the server.
 // We will send a synchronous cancel request. It shouldn't take long.
 //
-   rInfo.RR.Id = tskID; rInfo.RR.Cmd = XrdSsiRRInfo::Can;
+   rInfo.Id = tskID; rInfo.Cmd = XrdSsiRRInfo::Can;
    DBG("Kill cancelling request.");
-   sessP->epFile.Truncate(rInfo.Info, tmOut);
+   sessP->epFile.Truncate(rInfo.Info(), tmOut);
 
 // If we are in the message handler or if we have a message pending, then
 // the message handler will dispose of the task.
@@ -247,11 +247,11 @@ int XrdSsiTaskReal::SetBuff(XrdSsiErrInfo &eInfo,
 
 // Prepare to issue the read
 //
-   rrInfo.RR.Id = tskID;
+   rrInfo.Id = tskID;
 
 // Issue a read
 //
-   epStatus = sessP->epFile.Read(rrInfo.Info,(uint32_t)blen,buff,ubRead,tmOut);
+   epStatus = sessP->epFile.Read(rrInfo.Info(),(uint32_t)blen,buff,ubRead,tmOut);
    if (epStatus.IsOK())
       {if (ibRead < blen) {tStat = isDone; last = true;}
        return ibRead;
@@ -290,12 +290,12 @@ bool XrdSsiTaskReal::SetBuff(XrdSsiRequest *reqP, char *buff, int blen)
 
 // Prepare to issue the read
 //
-   rrInfo.RR.Id = tskID;
+   rrInfo.Id = tskID;
 
 // Issue a read
 //
    dataBuff = buff; dataRlen = blen; rqstP = reqP;
-   epStatus = sessP->epFile.Read(rrInfo.Info, (uint32_t)blen, buff,
+   epStatus = sessP->epFile.Read(rrInfo.Info(), (uint32_t)blen, buff,
                                 (XrdCl::ResponseHandler *)this, tmOut);
 
 // If success then indicate we are pending and return

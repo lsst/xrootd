@@ -276,12 +276,12 @@ bool XrdSsiSessReal::ProcessRequest(XrdSsiRequest *reqP, unsigned short tOut)
 
 // Construct the info for this request
 //
-   rrInfo.RR.Id   = tP->ID();
-   rrInfo.RR.Size = htonl(reqBlen);
+   rrInfo.Id   = tP->ID();
+   rrInfo.Size = htonl(reqBlen);
 
 // Issue the write
 //
-   Status = epFile.Write(rrInfo.Info, (uint32_t)reqBlen, reqBuff,
+   Status = epFile.Write(rrInfo.Info(), (uint32_t)reqBlen, reqBuff,
                          (XrdCl::ResponseHandler *)tP, tOut);
 
 // Determine ending status. If OK, place task on attached list
