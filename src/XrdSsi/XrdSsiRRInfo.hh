@@ -30,25 +30,42 @@
 /* specific prior written permission of the institution or contributor.       */
 /******************************************************************************/
 
-#include "XrdSys/XrdSysPlatform.hh"
+#include <arpa/inet.h>
 
-struct XrdSsiRRInfo
+class XrdSsiRRInfo
 {
-char               Cmd;
-char               Rsv[2];
-char               Id;
-int                Size;
+public:
+
+enum   Opc {Rxq = 0, Rwt = 1, Can = 2};
+
+inline void               Cmd(Opc cmd) {reqCmd  = static_cast<char>(cmd);}
+
+inline Opc                Cmd()        {return    static_cast<Opc>(reqCmd);}
+
+inline void               Id(int id)   {reqId   = static_cast<char>(id);}
+
+inline int                Id()         {return    static_cast<int>(reqId)&0xff;}
+
+inline void               Size(int sz) {reqSize = htonl(sz);}
+
+inline int                Size()       {return    ntohl(reqSize);}
 
 inline unsigned long long Info()
-       {return (static_cast<unsigned long long>(Cmd)<<56LL)
-              |(static_cast<unsigned long long>(Id )<<32LL) | Size;}
+       {return (static_cast<unsigned long long>(reqCmd)<<56LL)
+              |(static_cast<unsigned long long>(reqId )<<32LL)
+              |(static_cast<unsigned long long>(reqSize) & 0xffffffffLL);
+       }
 
-static const char  Rxq = 0;
-static const char  Rwt = 1;
-static const char  Can = 2;
+       XrdSsiRRInfo(unsigned long long ival=0)
+                   : reqCmd(ival>>56), reqId(ival>>32),
+                     reqSize(ival & 0xffffffff) {}
 
-       XrdSsiRRInfo(unsigned long long ival=0) : Cmd(ival>>56), Id(ival>>32),
-                                                Size(ival & 0xffffffff) {}
       ~XrdSsiRRInfo() {}
+
+private:
+char               reqCmd;
+char               Rsv[2];
+char               reqId;
+int                reqSize;
 };
 #endif

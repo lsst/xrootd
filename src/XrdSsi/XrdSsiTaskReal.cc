@@ -93,7 +93,7 @@ void XrdSsiTaskReal::HandleResponse(XrdCl::XRootDStatus *status,
          {case isWrite:
                if (!aOK) {RespErr(status); return;}
                tStat = isSync;
-               rInfo.Id = tskID; rInfo.Cmd = XrdSsiRRInfo::Rwt;
+               rInfo.Id(tskID); rInfo.Cmd(XrdSsiRRInfo::Rwt);
                DBG("Task Handler calling RelBuff.");
                ReleaseRequestBuffer();
                DBG("Task Handler calling trunc.");
@@ -184,7 +184,7 @@ bool XrdSsiTaskReal::Kill() // Called with session mutex locked!
 // If we are here then the request is potentially still active at the server.
 // We will send a synchronous cancel request. It shouldn't take long.
 //
-   rInfo.Id = tskID; rInfo.Cmd = XrdSsiRRInfo::Can;
+   rInfo.Id(tskID); rInfo.Cmd(XrdSsiRRInfo::Can);
    DBG("Kill cancelling request.");
    sessP->epFile.Truncate(rInfo.Info(), tmOut);
 
@@ -247,7 +247,7 @@ int XrdSsiTaskReal::SetBuff(XrdSsiErrInfo &eInfo,
 
 // Prepare to issue the read
 //
-   rrInfo.Id = tskID;
+   rrInfo.Id(tskID);
 
 // Issue a read
 //
@@ -290,7 +290,7 @@ bool XrdSsiTaskReal::SetBuff(XrdSsiRequest *reqP, char *buff, int blen)
 
 // Prepare to issue the read
 //
-   rrInfo.Id = tskID;
+   rrInfo.Id(tskID);
 
 // Issue a read
 //

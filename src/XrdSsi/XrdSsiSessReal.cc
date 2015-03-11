@@ -276,8 +276,8 @@ bool XrdSsiSessReal::ProcessRequest(XrdSsiRequest *reqP, unsigned short tOut)
 
 // Construct the info for this request
 //
-   rrInfo.Id   = tP->ID();
-   rrInfo.Size = htonl(reqBlen);
+   rrInfo.Id(tP->ID());
+   rrInfo.Size(reqBlen);
 
 // Issue the write
 //

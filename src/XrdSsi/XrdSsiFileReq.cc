@@ -745,23 +745,23 @@ void XrdSsiFileReq::WakeInfo(XrdSsiRRInfo *rdyInfo) // myMutex is locked!
 
 // Set appropriate response information
 //
-   rdyInfo->Id = reqID;
+   rdyInfo->Id(reqID);
    switch(RespP()->rType)
          {case XrdSsiRespInfo::isData:
-               rdyInfo->Size = htonl(respLen);
+               rdyInfo->Size(respLen);
                break;
           case XrdSsiRespInfo::isError:
-               rdyInfo->Size = -1;
+               rdyInfo->Size(-1);
                break;
           case XrdSsiRespInfo::isFile:
-               if (fileSz & 0xffffffff80000000LL) rdyInfo->Size = 0;
-                  rdyInfo->Size = htonl(static_cast<int>(fileSz));
+               if (fileSz & 0xffffffff80000000LL) rdyInfo->Size(0);
+                  rdyInfo->Size(static_cast<int>(fileSz));
                break;
           case XrdSsiRespInfo::isStream:
-               rdyInfo->Size = 0;
+               rdyInfo->Size(0);
                break;
           default:
-               rdyInfo->Size = htonl(-2);
+               rdyInfo->Size(-2);
                break;
          }
 }
