@@ -1,0 +1,15 @@
+# Change Log
+All notable changes to xssi (i.e. xrootd version used by Qserv)
+are documented here.
+
+## [1.0.0] 2015-03-12
+
+### Fixed
+- Fix 2MB size limit on server answer
+- Allow eups xrootd to be relocatable
+
+### Changed
+- Switch on debug mode in eups build
+
+### Added
+- Add ChangeLog related to xssi
