@@ -27,7 +27,7 @@ install()
 
         ARCH=`arch`
         case "${ARCH}" in
-            x86_64) cd ${PREFIX} && ln -s lib64 lib ;;
+            x86_64) mkdir -p ${PREFIX}/lib && cd ${PREFIX}/lib && ln -s ../lib64/* . ;;
             *)      echo "Default behaviour for managing lib(64)/ directory" ;;
         esac
 
