@@ -146,7 +146,7 @@ namespace XrdCl
         return Take | RemoveHandler;
 
       case kXR_waitresp:
-        return Take;
+        return Take | NoProcess; //?? We need to reset the timeout here!!!
 
       //------------------------------------------------------------------------
       // Handle the potential raw cases
