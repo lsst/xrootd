@@ -174,6 +174,7 @@ inline Status  SetMetadata(const char *buff, int blen)
                           {SSI_VAL_RESPONSE(rP);
                            rP->Resp.mdata = buff; rP->Resp.mdlen = blen;
                            rP->reqMutex.UnLock();
+                           return wasPosted;
                           }
 
 //-----------------------------------------------------------------------------
