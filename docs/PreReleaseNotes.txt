@@ -10,14 +10,16 @@ Prerelease Notes
   * [Misc] Add generalized XML parsing ability.
   * [Misc] Add metalink parsing for future integration.
   * [Server] Allow declaring extra large I/O buffers (mostly for Ceph).
+  * [Server] Allow iovec based data responses (no ABI changes).
 
 + **Major bug fixes**
-  * [Server] Avoid SEGV when an excessively long readv vector is presented.
-  * [XrdCl] Process waitresp synchronously via Ignore return to avoid SEGV.
-  * [XrdCl] Avoid memory leak when a handler returns Ignore for a taken
-            message. This becomes more severe with above patch.
+  * [Server] Delete extraneous semaphore wait to avoid deadlock (#290).
+  * [XrdCl] Avoid SEGV when server fails after it responds waitresp.
+  * [Server] Return correct response to a delayed open.
 
 + **Minor bug fixes**
+  * [Server] Make sure the cluster ID is always formatted the same way.
+  * [Server] Correctly compute timeout wait.
 
 + **Miscellaneous**
   * New Scalable Service Interface package.
