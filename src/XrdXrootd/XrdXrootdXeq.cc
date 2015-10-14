@@ -1234,6 +1234,10 @@ int XrdXrootdProtocol::do_Open()
    if (doDig) {popt = XROOTDXP_NOLK; opC = 0;}
       else if (!(popt = Squash(fn))) return vpEmsg("Opening", fn);
 
+// Add the multi-write option if this path supports it
+//
+   if (popt & XROOTDXP_NOMWCHK) openopts |= SFS_O_MULTIW;
+
 // Get a file object
 //
    if (doDig) fp = digFS->newFile(Link->ID, Monitor.Did);
@@ -2051,7 +2055,7 @@ int XrdXrootdProtocol::do_ReadV()
 // a limit on it's size. We do this to be able to reuse the data buffer to 
 // prevent cross-cpu memory cache synchronization.
 //
-   if (rdVecLen > static_cast<int>(sizeof(rdVec)))
+   if (rdVecNum > maxRvecsz)
       return Response.Send(kXR_ArgTooLong, "Read vector is too long");
 
 // So, now we account for the number of readv requests and total segments
@@ -2858,6 +2862,16 @@ int XrdXrootdProtocol::fsError(int rc, char opC, XrdOucErrInfo &myError,
       {if (ecode) rs = Response.Send((void *)eMsg, ecode);
           else    rs = Response.Send();
        if (myError.extData()) myError.Reset();
+       return rs;
+      }
+
+// Process the data response via an iovec
+//
+   if (rc == SFS_DATAVEC)
+      {if (ecode < 2) rs = Response.Send();
+          else        rs = Response.Send((struct iovec *)eMsg, ecode);
+       if (myError.getErrCB()) myError.getErrCB()->Done(ecode, &myError);
+       if (myError.extData())  myError.Reset();
        return rs;
       }
 

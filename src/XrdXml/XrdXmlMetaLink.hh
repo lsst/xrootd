@@ -151,6 +151,7 @@ bool            GetHash();
 void            GetRdrError(const char *why);
 bool            GetSize();
 bool            GetUrl();
+void            GetName();
 bool            PutFile(const char *buff, int blen);
 bool            UrlOK(char *url);
 
@@ -164,7 +165,7 @@ int             fileCnt;
 int             eCode;
 bool            doAll;
 bool            noUrl;
-char            tmpFn[30];
+char            tmpFn[64];
 char            eText[256];
 };
 #endif

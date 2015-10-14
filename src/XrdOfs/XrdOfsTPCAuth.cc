@@ -269,7 +269,7 @@ do{authMutex.Lock();
    eNow = time(0); eWait = maxTTL; numExp = 0;
    while(cP)
         {if (eNow < cP->expT)
-            {eDiff = eNow - cP->expT;
+            {eDiff = cP->expT - eNow;
              if (eDiff < eWait) eWait = eDiff;
              pP = cP; cP = cP->Next;
             }

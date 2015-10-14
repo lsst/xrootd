@@ -30,8 +30,11 @@
 #include <ctype.h>
 #include <errno.h>
 #include <stdio.h>
+#include <unistd.h>
 
+#include "XrdSys/XrdSysAtomics.hh"
 #include "XrdSys/XrdSysFD.hh"
+#include "XrdSys/XrdSysPthread.hh"
 #include "XrdXml/XrdXmlMetaLink.hh"
 
 /******************************************************************************/
@@ -39,6 +42,24 @@
 /******************************************************************************/
 
 #define SizeOfVec(x) sizeof(x)/sizeof(x[0])
+
+namespace
+{
+char         tmpPath[40];
+
+unsigned int GenTmpPath()
+{
+// The below will not generate a result more than 31 characters.
+//
+     snprintf(tmpPath, sizeof(tmpPath), "/tmp/.MetaLink%8x.%d.",
+                       static_cast<int>(time(0)), static_cast<int>(getpid()));
+     return 0;
+}
+
+XrdSysMutex xMutex;
+
+unsigned int seqNo = GenTmpPath();
+}
 
 /******************************************************************************/
 /*                         L o c a l   C l a s s e s                          */
@@ -274,9 +295,13 @@ bool XrdXmlMetaLink::GetFile(const char *scope)
   
 bool XrdXmlMetaLink::GetFileInfo(const char *scope)
 {
+   static const char *fileScope = "file";
    const char *fsubElem[] = {scope, "url", "hash", "size",
                              "verification", "resources", 0};
    int ePos;
+
+   if(strncmp(scope, fileScope, 4) == 0)
+     GetName();
 
 // Process the elements in he file section. Both formats have the same tags,
 // though not the same attributes. We will take care of the differences later.
@@ -426,24 +451,40 @@ bool XrdXmlMetaLink::GetUrl()
 }
 
 /******************************************************************************/
+/* Private:                       G e t N a m e                               */
+/******************************************************************************/
+
+void XrdXmlMetaLink::GetName()
+{
+  static const char *mAtr[] = {"name", 0};
+  char *mVal[] = {0};
+  reader->GetAttributes(mAtr, mVal);
+  currFile->AddFileName(mVal[0]);
+  free(mVal[0]);
+}
+
+/******************************************************************************/
 /* Private:                      P u t F i l e                                */
 /******************************************************************************/
   
 bool XrdXmlMetaLink::PutFile(const char *buff, int blen)
 {
-   static const int oFlags = O_CREAT | O_TRUNC | O_WRONLY;
+   static const int oFlags = O_EXCL | O_CREAT | O_TRUNC | O_WRONLY;
    const char *what = "opening";
+   unsigned int fSeq;
    int fd;
 
-// Generate a unique filepath
-//                123456789012345678901234 (note tmpFn is 30 characters)
-   strcpy(tmpFn, "/tmp/.XrdMetaLink.XXXXXX");
-   mktemp(tmpFn);
-   if (!(*tmpFn))
-      {strcpy(eText, "Unable to create temporary filename.");
-       eCode = EINVAL;
-       return false;
-      }
+// Get a unique sequence number
+//
+   AtomicBeg(xMutex);
+   fSeq = AtomicInc(seqNo);
+   AtomicEnd(xMutex);
+
+// Generate a unique filepath. Unfortunately, mktemp is unsafe and mkstemp may
+// leak a file descriptor. So, we roll our own using above sequence number.
+// Note that the target buffer is 64 characters which is suffcient for us.
+//
+   snprintf(tmpFn, sizeof(tmpFn), "%s%u", tmpPath, fSeq);
 
 // Open the file for output, write out the buffer, and close the file
 //
