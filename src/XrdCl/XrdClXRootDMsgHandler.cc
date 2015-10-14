@@ -146,7 +146,8 @@ namespace XrdCl
         return Take | RemoveHandler;
 
       case kXR_waitresp:
-        return Take | NoProcess; //?? We need to reset the timeout here!!!
+        pResponse = 0;
+        return Take | Ignore; // This must be handled synchronously!
 
       //------------------------------------------------------------------------
       // Handle the potential raw cases
@@ -339,7 +340,8 @@ namespace XrdCl
                    errmsg );
         delete [] errmsg;
 
-        HandleError( Status(stError, errErrorResponse), pResponse );
+        HandleError( Status(stError, errErrorResponse, rsp->body.error.errnum),
+                     pResponse );
         return;
       }
 
@@ -555,8 +557,10 @@ namespace XrdCl
       }
 
       //------------------------------------------------------------------------
-      // kXR_waitresp - the response will be returned in some seconds
-      // as an unsolicited message
+      // kXR_waitresp - the response will be returned in some seconds as an
+      // unsolicited message. Currently all messages of this type are handled
+      // one step before in the XrdClStream::OnIncoming as they need to be
+      // processed synchronously.
       //------------------------------------------------------------------------
       case kXR_waitresp:
       {

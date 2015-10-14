@@ -98,6 +98,8 @@ namespace XrdSsi
 
        XrdSsiLogger            SsiLogger;
 
+       int                     respWT   = 0x7fffffff;
+
        bool                    fsChk    = false;
 
 extern XrdSfsFileSystem       *theFS;
@@ -128,6 +130,7 @@ XrdSsiSfsConfig::XrdSsiSfsConfig(bool iscms)
    SvcParms      = 0;
    myRole        = 0;
    maxRSZ        = 2097152;
+   respWT        = 0x7fffffff;
    isServer      = true;
    isCms         = iscms;
    myHost        = getenv("XRDHOST");
@@ -504,13 +507,14 @@ int XrdSsiSfsConfig::Xfsp()
 
 /* Function: Xopts
 
-   Purpose:  To parse directive: opts  [files <n>] [requests <n>]
+   Purpose:  To parse directive: opts  [files <n>] [requests <n>] [respwt <t>]
                                        [maxrsz <sz>] [auth {0 | 1 | 2}]
 
              auth     0 -> don't supply auth, 1 -> do, 2 -> do w/ real hostname
              files    the maximum number of file objects to hold in reserve.
              maxrsz   the maximum size of a request.
              requests the maximum number of requests objects to hold in reserve.
+             respwait the number of seconds to place client in response wait.
 
    Output: 0 upon success or 1 upon failure.
 */
@@ -518,15 +522,16 @@ int XrdSsiSfsConfig::Xfsp()
 int XrdSsiSfsConfig::Xopts()
 {
    char *val;
-   long long ppp, rMax = -1, rObj = -1, fAut = -1;
-   int  i;
+   long long ppp, rMax = -1, rObj = -1, fAut = -1, fRwt = -1;
+   int  i, xtm;
 
    struct optsopts {const char *opname; long long *oploc; int maxv; int isSz;}
           opopts[] =
       {
        {"authinfo", &fAut,            2, 0},
        {"maxrsz",   &rMax, 16*1024*1024, 1},
-       {"requests", &rObj,      64*1024, 0}
+       {"requests", &rObj,      64*1024, 0},
+       {"respwt",   &fRwt, 0x7fffffffLL,-1}
       };
    int numopts = sizeof(opopts)/sizeof(struct optsopts);
 
@@ -541,13 +546,17 @@ int XrdSsiSfsConfig::Xopts()
                                "argument not specified.");
                       return 1;
                      }
-                  if (opopts[i].isSz)
-                     {if (XrdOuca2x::a2sz(Log,"opts value", val, &ppp,
-                                          0, opopts[i].maxv)) return 1;
-                     } else {
-                      if (XrdOuca2x::a2ll(Log,"opts value", val, &ppp,
-                                          0, opopts[i].maxv)) return 1;
-                     }
+                       if (opopts[i].isSz > 0)
+                          {if (XrdOuca2x::a2sz(Log,"opts value", val, &ppp,
+                                               0, opopts[i].maxv)) return 1;
+                          }
+                  else if (opopts[i].isSz < 0)
+                          {if (XrdOuca2x::a2tm(Log,"opts value", val, &xtm,
+                                               0, opopts[i].maxv)) return 1;
+                           ppp = xtm;
+                          }
+                  else if (XrdOuca2x::a2ll(Log,"opts value", val, &ppp,
+                                           0, opopts[i].maxv)) return 1;
                   *opopts[i].oploc = ppp;
                   break;
                  }
@@ -561,6 +570,7 @@ int XrdSsiSfsConfig::Xopts()
     if (fAut >= 0) XrdSsiFile   ::SetAuth(static_cast<int>(fAut));
     if (rMax >= 0) maxRSZ = static_cast<int>(rMax);
     if (rObj >= 0) XrdSsiFileReq::SetMax(static_cast<int>(rObj));
+    if (fRwt >= 0) respWT = fRwt;
 
     return 0;
 }
@@ -657,7 +667,7 @@ int XrdSsiSfsConfig::Xrole()
    isServer = (roleID == XrdCmsRole::Server);
    return 0;
 }
-
+  
 /******************************************************************************/
 /*                                x t r a c e                                 */
 /******************************************************************************/

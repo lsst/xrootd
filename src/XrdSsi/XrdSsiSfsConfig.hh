@@ -44,10 +44,10 @@ const char      *myHost;
 const char      *myProg;
 const char      *myInsName;
 char            *myRole;
+XrdSsiCluster   *SsiCms;
 int              myPort;
 bool             isServer;
 bool             isCms;
-XrdSsiCluster   *SsiCms;
 
 bool             Configure(const char *cFN);
 
