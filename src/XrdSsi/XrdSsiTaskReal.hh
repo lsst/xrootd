@@ -30,14 +30,15 @@
 /******************************************************************************/
 
 #include "XrdSsi/XrdSsiEvent.hh"
+#include "XrdSsi/XrdSsiPacer.hh"
 #include "XrdSsi/XrdSsiStream.hh"
 #include "XrdSsi/XrdSsiResponder.hh"
 
 class XrdSsiRequest;
 class XrdSsiSessReal;
 
-class XrdSsiTaskReal : public XrdSsiEvent,    public XrdSsiResponder,
-                       public XrdSsiStream
+class XrdSsiTaskReal : public XrdSsiEvent,     public XrdSsiPacer,
+                       public XrdSsiResponder, public XrdSsiStream
 {
 public:
 
@@ -58,6 +59,10 @@ void   Init(XrdSsiRequest *rP, unsigned short tmo=0)
             attList.next = attList.prev = this;
             if (mdResp) {delete mdResp; mdResp = 0;}
            }
+
+void   Redrive();
+const 
+char  *RequestID() {return rqstP->reqID;}
 
 int    SetBuff(XrdSsiErrInfo &eInfo, char *buff, int blen, bool &last);
 

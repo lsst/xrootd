@@ -82,6 +82,11 @@ namespace XrdCl
                    time_t                expires );
 
       //------------------------------------------------------------------------
+      //! Queue a virtual response
+      //------------------------------------------------------------------------
+      Status ReceiveVirtual( Message *msg );
+
+      //------------------------------------------------------------------------
       //! Set the transport
       //------------------------------------------------------------------------
       void SetTransport( TransportHandler *transport )
@@ -177,6 +182,11 @@ namespace XrdCl
       {
         return pStreamName;
       }
+
+      //------------------------------------------------------------------------
+      //! Disables respective uplink if empty
+      //------------------------------------------------------------------------
+      void DisableIfEmpty( uint16_t subStream );
 
       //------------------------------------------------------------------------
       //! Call back when a message has been reconstructed
@@ -294,6 +304,11 @@ namespace XrdCl
       //! Inform the monitoring about disconnection
       //------------------------------------------------------------------------
       void MonitorDisconnection( Status status );
+
+      //------------------------------------------------------------------------
+      //! Send close after an open request timed out
+      //------------------------------------------------------------------------
+      Status RequestClose( Message  *resp );
 
       typedef std::vector<SubStreamData*> SubStreamList;
 

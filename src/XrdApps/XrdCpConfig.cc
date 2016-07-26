@@ -286,9 +286,9 @@ do{while(optind < Argc && Legacy(optind)) {}
 
 // Make sure we have the right number of files
 //
-   if (inFile) {if (!parmCnt     ) UMSG("Destination not specified.");}
-      else {    if (!parmCnt     ) UMSG("No files specified.");
-                if ( parmCnt == 1) UMSG("Destination not specified.");
+   if (inFile) {if (!parmCnt      ) UMSG("Destination not specified.");}
+      else {    if (!parmCnt      ) UMSG("No files specified.");
+                if ( parmCnt == 1 ) UMSG("Destination not specified.");
            }
 
 // Check for conflicts wit third party copy
@@ -307,26 +307,29 @@ do{while(optind < Argc && Legacy(optind)) {}
 //
    if (getenv("XRD_MAKEPATH")) OpSpec |= DoPath;
 
+   if( parmCnt > 1 )
+   {
 // Process the destination first as it is special
 //
-   dstFile = new XrdCpFile(parmVal[--parmCnt], rc);
-   if (rc) FMSG("Invalid url, '" <<dstFile->Path <<"'.", 22);
+     dstFile = new XrdCpFile(parmVal[--parmCnt], rc);
+     if (rc) FMSG("Invalid url, '" <<dstFile->Path <<"'.", 22);
 
 // Do a protocol check
 //
-   if (dstFile->Protocol != XrdCpFile::isFile
-   &&  dstFile->Protocol != XrdCpFile::isStdIO
-   &&  dstFile->Protocol != XrdCpFile::isXroot)
-      {FMSG(dstFile->ProtName <<"file protocol is not supported.", 22)}
+     if (dstFile->Protocol != XrdCpFile::isFile
+     &&  dstFile->Protocol != XrdCpFile::isStdIO
+     &&  dstFile->Protocol != XrdCpFile::isXroot)
+        {FMSG(dstFile->ProtName <<"file protocol is not supported.", 22)}
 
 // Resolve this file if it is a local file
 //
-   isLcl = (dstFile->Protocol == XrdCpFile::isFile)
-         | (dstFile->Protocol == XrdCpFile::isStdIO);
-   if (isLcl && (rc = dstFile->Resolve()))
-      {if (rc != ENOENT || (Argc - optind - 1) > 1 || OpSpec & DoRecurse)
-          FMSG(strerror(rc) <<" processing " <<dstFile->Path, 2);
-      }
+     isLcl = (dstFile->Protocol == XrdCpFile::isFile)
+           | (dstFile->Protocol == XrdCpFile::isStdIO);
+     if (isLcl && (rc = dstFile->Resolve()))
+        {if (rc != ENOENT || (Argc - optind - 1) > 1 || OpSpec & DoRecurse)
+            FMSG(strerror(rc) <<" processing " <<dstFile->Path, 2);
+        }
+   }
 
 // Now pick up all the source files from the command line
 //
@@ -353,7 +356,7 @@ do{while(optind < Argc && Legacy(optind)) {}
 
 // Check if we have an appropriate destination
 //
-   if (dstFile->Protocol == XrdCpFile::isFile && (numFiles > 1 
+   if (dstFile->Protocol == XrdCpFile::isFile && (numFiles > 1
    ||  (OpSpec & DoRecurse && srcFile->Protocol != XrdCpFile::isFile)))
       FMSG("Destination is neither remote nor a directory.", 2);
 

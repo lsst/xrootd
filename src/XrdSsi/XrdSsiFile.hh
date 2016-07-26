@@ -33,14 +33,8 @@
 #include <sys/types.h>
 
 #include "XrdSfs/XrdSfsInterface.hh"
-#include "XrdSsi/XrdSsiBVec.hh"
-#include "XrdSsi/XrdSsiFileReq.hh"
-#include "XrdSsi/XrdSsiRRTable.hh"
-#include "XrdSys/XrdSysPthread.hh"
   
-class  XrdSfsXioHandle;
-struct XrdSsiRespInfo;
-class  XrdSsiSession;
+class  XrdSsiFileSess;
 
 class XrdSsiFile : public XrdSfsFile
 {
@@ -87,10 +81,6 @@ public:
                                   XrdSfsFileOffset   offset,
                                   XrdSfsXferSize     size);
 
-static  void             SetAuth(int axq) {authXQ = axq;}
-
-static  void             SetMaxSz(int mSz) {maxRSZ = mSz;}
-                        
         void             setXio(XrdSfsXio *xP) {xioP = xP;}
                         
         int              stat(struct stat *buf);
@@ -112,37 +102,13 @@ static  void             SetMaxSz(int mSz) {maxRSZ = mSz;}
                          XrdSsiFile(const char *user, int MonID);
                         
 virtual                 ~XrdSsiFile();
-
-// Special methods
-//
-        bool             AttnInfo(      XrdOucErrInfo  &eInfo,
-                                  const XrdSsiRespInfo *respP, int reqID);
                         
 private:                
-void                     CopyECB();
+void                     CopyECB(bool forOpen=false);
 int                      CopyErr(const char *op, int rc);
-char                    *GetUser(const char *incgi);
-bool                     NewRequest(int reqid, XrdOucBuffer *oP,
-                                    XrdSfsXioHandle *bR, int rSz);
-XrdSfsXferSize           writeAdd(const char *buff, XrdSfsXferSize blen, int rid);
-static int               maxRSZ;
-static int               authXQ;
 
-const char              *tident;
-char                    *gigID;
-char                    *fsUser;
 XrdSfsFile              *fsFile;
-XrdSysMutex              myMutex;
+XrdSsiFileSess          *fSessP;
 XrdSfsXio               *xioP;
-XrdOucBuffer            *oucBuff;
-XrdSsiSession           *sessP;
-int                      reqSize;
-int                      reqLeft;
-bool                     isOpen;
-bool                     inProg;
-bool                     viaDel;
-
-XrdSsiBVec               eofVec;
-XrdSsiRRTable<XrdSsiFileReq> rTab;
 };
 #endif

@@ -91,6 +91,7 @@ set( XROOTD_PUBLIC_HEADERS
   XrdSsi/XrdSsiRequest.hh
   XrdSsi/XrdSsiRespInfo.hh
   XrdSsi/XrdSsiResponder.hh
+  XrdSsi/XrdSsiResource.hh
   XrdSsi/XrdSsiService.hh
   XrdSsi/XrdSsiSession.hh
   XrdSsi/XrdSsiStream.hh
@@ -101,6 +102,7 @@ set( XROOTD_PUBLIC_HEADERS
   XrdSys/XrdSysHeaders.hh
   XrdSys/XrdSysLinuxSemaphore.hh
   XrdSys/XrdSysLogger.hh
+  XrdSys/XrdSysLogPI.hh
   XrdSys/XrdSysPlatform.hh
   XrdSys/XrdSysPlugin.hh
   XrdSys/XrdSysPthread.hh
