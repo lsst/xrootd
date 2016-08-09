@@ -25,6 +25,7 @@
 #include <cstdlib>
 #include <vector>
 #include <sstream>
+#include <algorithm>
 
 namespace XrdCl
 {
@@ -363,6 +364,21 @@ namespace XrdCl
     if( pProtocol != "file" && pProtocol != "stdio" && pHostName.empty() )
       return false;
     return true;
+  }
+
+  bool URL::IsMetalink() const
+  {
+    Env *env = DefaultEnv::GetEnv();
+    int mlProcessing = DefaultMetalinkProcessing;
+    env->GetInt( "MetalinkProcessing", mlProcessing );
+    if( !mlProcessing ) return false;
+    return PathEndsWith( ".meta4" ) || PathEndsWith( ".metalink" );
+  }
+
+  bool URL::PathEndsWith(const std::string & sufix) const
+  {
+    if (sufix.size() > pPath.size()) return false;
+    return std::equal(sufix.rbegin(), sufix.rend(), pPath.rbegin() );
   }
 
   //----------------------------------------------------------------------------

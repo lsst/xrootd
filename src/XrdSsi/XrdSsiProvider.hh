@@ -181,11 +181,13 @@ virtual rStat  QueryResource(const char *rName,
 //! completes. This method must be called prior to calling GetService().
 //! This method has no meaning server-side and is ignored.
 //!
-//! @param  tNum     The maximum number of threads to be used (default is 300).
-//!                  In practice twice this number of threads is allowed.
+//! @param  cbNum    The maximum number of threads to be used for callbacks and
+//!                  sets the maximum number of active callbacks (default 300).
+//! @param  ntNum    The maximum number of threads to be used to handle network
+//!                  traffic. The minimum is 3, the default is 10% of cbNum.
 //-----------------------------------------------------------------------------
 
-virtual void   SetCBThreads(int tNum) {(void)tNum;}
+virtual void   SetCBThreads(int cbNum, int ntNum=0) {(void)cbNum; (void)ntNum;}
 
 //-----------------------------------------------------------------------------
 //! Set default global timeouts. By default, all timeouts are set to infinity.
@@ -194,7 +196,9 @@ virtual void   SetCBThreads(int tNum) {(void)tNum;}
 //! @param  tmoval   The timeout valid in seconds. A value of <= 0 is ignored.
 //-----------------------------------------------------------------------------
 
-enum    tmoType {idleClose=0, //!< Time before an idle socket is closed (client)
+enum    tmoType {connect_N=0, //!< Number of times to try connection    (client)
+                 connect_T,   //!< Time to wait for a connection        (client)
+                 idleClose,   //!< Time before an idle socket is closed (client)
                  request_T,   //!< Time to wait for a request to finsish(client)
                  response_T,  //!< Time for client to wait for a resp   (Server)
                  stream_T     //!< Time to wait for socket activity     (Client)

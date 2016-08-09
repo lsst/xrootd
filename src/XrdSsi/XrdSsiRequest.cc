@@ -1,8 +1,8 @@
 /******************************************************************************/
 /*                                                                            */
-/*                      X r d S s i R e q u e s t . h h                       */
+/*                      X r d S s i R e q u e s t . c c                       */
 /*                                                                            */
-/* (c) 2013 by the Board of Trustees of the Leland Stanford, Jr., University  */
+/* (c) 2016 by the Board of Trustees of the Leland Stanford, Jr., University  */
 /*   Produced by Andrew Hanushevsky for Stanford University under contract    */
 /*              DE-AC02-76-SFO0515 with the Department of Energy              */
 /*                                                                            */
@@ -27,14 +27,19 @@
 /* specific prior written permission of the institution or contributor.       */
 /******************************************************************************/
 
+#include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 
+#include "XrdSsi/XrdSsiPacer.hh"
 #include "XrdSsi/XrdSsiRespInfo.hh"
 #include "XrdSsi/XrdSsiRequest.hh"
-
+#include "XrdSsi/XrdSsiResource.hh"
+#include "XrdSsi/XrdSsiService.hh"
+#include "XrdSsi/XrdSsiSSRun.hh"
+  
 /******************************************************************************/
-/*                              C o p y D a t a                               */
+/* Private:                     C o p y D a t a                               */
 /******************************************************************************/
   
 bool XrdSsiRequest::CopyData(char *buff, int blen)
@@ -63,4 +68,91 @@ bool XrdSsiRequest::CopyData(char *buff, int blen)
 //
    ProcessResponseData(buff, blen, last);
    return true;
+}
+
+/******************************************************************************/
+/*                              F i n i s h e d                               */
+/******************************************************************************/
+
+bool XrdSsiRequest::Finished(bool cancel)
+{
+   XrdSsiMutexMon(reqMutex);
+
+// If there is no session, return failure
+//
+   if (!theSession) return false;
+
+// Tell the session we are finished
+//
+   theSession->RequestFinished(this, Resp, cancel);
+
+// Clear response and error information
+//
+   Resp.Init();
+   eInfo.Clr();
+
+// Clear pointers and return
+//
+   theRespond = 0;
+   theSession = 0;
+   return true;
+}
+  
+/******************************************************************************/
+/*                                 S S R u n                                  */
+/******************************************************************************/
+  
+void XrdSsiRequest::SSRun(XrdSsiService  &srvc,
+                          XrdSsiResource &rsrc,
+                          unsigned short  tmo)
+{
+   XrdSsiSSRun *runP;
+
+// Make sure that atleats the resource name was specified
+//
+   if (!rsrc.rName || !(*rsrc.rName))
+      {eInfo.Set("Resource name missing.", EINVAL);
+       Resp.eMsg  = eInfo.Get();
+       Resp.eNum  = EINVAL;
+       Resp.rType = XrdSsiRespInfo::isError;
+       ProcessResponse(Resp, false);
+       return;
+      }
+
+// Now allocate memory to copy all the members
+//
+   runP = XrdSsiSSRun::Alloc(this, rsrc, tmo);
+   if (!runP)
+      {eInfo.Set(0, ENOMEM);
+       Resp.eMsg  = eInfo.Get();
+       Resp.eNum  = ENOMEM;
+       Resp.rType = XrdSsiRespInfo::isError;
+       ProcessResponse(Resp, false);
+       return;
+      }
+
+// Now provision the resource and we are done here. The SSRun object takes over.
+//
+   srvc.Provision(runP, tmo);
+}
+
+/******************************************************************************/
+
+void XrdSsiRequest::SSRun(XrdSsiService  &srvc,
+                          const char     *rname,
+                          const char     *ruser,
+                          unsigned short  tmo)
+{
+   XrdSsiResource myRes(rname, ruser);
+
+   SSRun(srvc, myRes, tmo);
+}
+
+/******************************************************************************/
+/*                   R e s t a r t D a t a R e s p o n s e                    */
+/******************************************************************************/
+  
+int  XrdSsiRequest::RestartDataResponse(int rnum, const char *reqid)
+{
+   return XrdSsiPacer::Run(rnum, reqid);
 }
