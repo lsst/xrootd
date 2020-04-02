@@ -2,16 +2,13 @@
 # Project description
 #-------------------------------------------------------------------------------
 cmake_minimum_required( VERSION 3.1 )
+cmake_policy( SET CMP0054 OLD )
 
 project( XRootD )
 
 set( CMAKE_MODULE_PATH
  ${PROJECT_SOURCE_DIR}/src
  ${PROJECT_SOURCE_DIR}/cmake )
-
-if(NOT (CMAKE_VERSION VERSION_LESS "3.1"))
-  cmake_policy(SET CMP0054 OLD)
-endif()
 
 include( XRootDUtils )
 CheckBuildDirectory()
@@ -27,13 +24,13 @@ add_definitions( -DXRDPLUGIN_SOVERSION="${PLUGIN_VERSION}" )
 # Generate the version header
 #-------------------------------------------------------------------------------
 execute_process(
-  COMMAND ${CMAKE_SOURCE_DIR}/genversion.sh --print-only ${CMAKE_SOURCE_DIR}
+  COMMAND ${PROJECT_SOURCE_DIR}/genversion.sh --print-only ${PROJECT_SOURCE_DIR}
   OUTPUT_VARIABLE XROOTD_VERSION
   OUTPUT_STRIP_TRAILING_WHITESPACE )
 
 add_custom_target(
   XrdVersion.hh
-  ${CMAKE_SOURCE_DIR}/genversion.sh ${CMAKE_SOURCE_DIR} )
+  ${PROJECT_SOURCE_DIR}/genversion.sh ${PROJECT_SOURCE_DIR} )
 
 # sigh, yet another ugly hack :(
 macro( add_library _target )
@@ -59,7 +56,6 @@ endif()
 
 include( XRootDSummary )
 
-
 #-------------------------------------------------------------------------------
 # Install FindXRootD.cmake module
 #-------------------------------------------------------------------------------
@@ -67,16 +63,16 @@ include( XRootDSummary )
 configure_file( "cmake/FindXRootD.cmake.in" "cmake/FindXRootD.cmake" @ONLY )
 
 install(
-  FILES ${CMAKE_BINARY_DIR}/cmake/FindXRootD.cmake
+  FILES ${PROJECT_BINARY_DIR}/cmake/FindXRootD.cmake
   DESTINATION ${CMAKE_INSTALL_DATADIR}/xrootd/cmake )
 
 #-------------------------------------------------------------------------------
 # Configure an 'uninstall' target
 #-------------------------------------------------------------------------------
 CONFIGURE_FILE(
-	"${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
-	"${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+	"${PROJECT_SOURCE_DIR}/cmake_uninstall.cmake.in"
+	"${PROJECT_BINARY_DIR}/cmake_uninstall.cmake"
 	IMMEDIATE @ONLY)
 
 ADD_CUSTOM_TARGET(uninstall
-  "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
+  "${CMAKE_COMMAND}" -P "${PROJECT_BINARY_DIR}/cmake_uninstall.cmake")

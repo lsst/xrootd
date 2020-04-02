@@ -30,8 +30,8 @@ endmacro()
 function( CheckBuildDirectory )
 
   # Get Real Paths of the source and binary directories
-  get_filename_component( srcdir "${CMAKE_SOURCE_DIR}" REALPATH )
-  get_filename_component( bindir "${CMAKE_BINARY_DIR}" REALPATH )
+  get_filename_component( srcdir "${PROJECT_SOURCE_DIR}" REALPATH )
+  get_filename_component( bindir "${PROJECT_BINARY_DIR}" REALPATH )
 
   # Check for in-source builds
   if( ${srcdir} STREQUAL ${bindir} )

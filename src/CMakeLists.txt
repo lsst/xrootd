@@ -61,10 +61,10 @@ endif()
 if( NOT XRDCL_ONLY )
 install(
   FILES
-  ${CMAKE_SOURCE_DIR}/utils/XrdCmsNotify.pm
-  ${CMAKE_SOURCE_DIR}/utils/netchk
-  ${CMAKE_SOURCE_DIR}/utils/XrdOlbMonPerf
-  ${CMAKE_SOURCE_DIR}/utils/cms_monPerf
+  ${PROJECT_SOURCE_DIR}/utils/XrdCmsNotify.pm
+  ${PROJECT_SOURCE_DIR}/utils/netchk
+  ${PROJECT_SOURCE_DIR}/utils/XrdOlbMonPerf
+  ${PROJECT_SOURCE_DIR}/utils/cms_monPerf
   DESTINATION ${CMAKE_INSTALL_DATADIR}/xrootd/utils
   PERMISSIONS
   OWNER_EXECUTE OWNER_WRITE OWNER_READ
@@ -79,7 +79,7 @@ if( NOT XRDCL_LIB_ONLY )
 install(
   CODE "
     EXECUTE_PROCESS(
-      COMMAND cat ${CMAKE_SOURCE_DIR}/utils/xrootd-config
+      COMMAND cat ${PROJECT_SOURCE_DIR}/utils/xrootd-config
       COMMAND sed -e \"s/__VERSION__/${XROOTD_VERSION}/\"
       COMMAND sed -e \"s|__INCLUDEDIR__|${CMAKE_INSTALL_INCLUDEDIR}|\"
       COMMAND sed -e \"s/__PLUGIN_VERSION__/${PLUGIN_VERSION}/\"

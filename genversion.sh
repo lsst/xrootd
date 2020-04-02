@@ -122,30 +122,35 @@ fi
 
 VERSION="unknown"
 
+CURRENTDIR=$PWD
+if [ x${SOURCEPATH} != x ]; then
+  cd ${SOURCEPATH}
+fi
+
 #-------------------------------------------------------------------------------
 # We're not inside a git repo
 #-------------------------------------------------------------------------------
-if test ! -d ${SOURCEPATH}.git; then
+if test ! git rev-parse --git-dir > /dev/null 2>&1; then
   #-----------------------------------------------------------------------------
   # We cannot figure out what version we are
   #----------------------------------------------------------------------------
   echo "[I] No git repository info found. Trying to interpret VERSION_INFO" 1>&2
-  if test ! -r ${SOURCEPATH}VERSION_INFO; then
+  if test ! -r VERSION_INFO; then
     echo "[!] VERSION_INFO file absent. Unable to determine the version. Using \"unknown\"" 1>&2
-  elif test x"`grep Format ${SOURCEPATH}VERSION_INFO`" != x; then
+  elif test x"`grep Format VERSION_INFO`" != x; then
     echo "[!] VERSION_INFO file invalid. Unable to determine the version. Using \"unknown\"" 1>&2
 
   #-----------------------------------------------------------------------------
   # The version file exists and seems to be valid so we know the version
   #----------------------------------------------------------------------------
   else
-    REFNAMES="`grep RefNames ${SOURCEPATH}VERSION_INFO`"
+    REFNAMES="`grep RefNames VERSION_INFO`"
     VERSION="`getVersionFromRefs "$REFNAMES"`"
     if test x$VERSION == xunknown; then
-      SHORTHASH="`grep ShortHash ${SOURCEPATH}VERSION_INFO`"
+      SHORTHASH="`grep ShortHash VERSION_INFO`"
       SHORTHASH=${SHORTHASH/ShortHash:/}
       SHORTHASH=${SHORTHASH// /}
-      DATE="`grep Date ${SOURCEPATH}VERSION_INFO`"
+      DATE="`grep Date VERSION_INFO`"
       DATE=${DATE/Date:/}
       VERSION="`getVersionFromLog $DATE $SHORTHASH`"
     fi
@@ -169,10 +174,6 @@ else
     #---------------------------------------------------------------------------
     # Sanity check
     #---------------------------------------------------------------------------
-    CURRENTDIR=$PWD
-    if [ x${SOURCEPATH} != x ]; then
-      cd ${SOURCEPATH}
-    fi
     git log -1 >/dev/null 2>&1
     if test $? -ne 0; then
       echo "[!] Error while generating src/XrdVersion.hh, the git repository may be corrupted" 1>&2
@@ -186,14 +187,15 @@ else
         VERSION="`git describe --tags --abbrev=0 --exact-match`"
       else
         LOGINFO="`git log -1 --format='%ai %h'`"
-	if test ${?} -eq 0; then
+        if test ${?} -eq 0; then
           VERSION="`getVersionFromLog $LOGINFO`"
         fi
       fi
     fi
-    cd $CURRENTDIR
   fi
 fi
+
+cd $CURRENTDIR
 
 #-------------------------------------------------------------------------------
 # Make sure the version string is not longer than 25 characters

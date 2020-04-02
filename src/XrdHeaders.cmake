@@ -1,7 +1,7 @@
 
 install(
   FILES
-  ${CMAKE_BINARY_DIR}/src/XrdVersion.hh
+  ${PROJECT_BINARY_DIR}/src/XrdVersion.hh
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/xrootd )
 
 set( XROOTD_PUBLIC_HEADERS
