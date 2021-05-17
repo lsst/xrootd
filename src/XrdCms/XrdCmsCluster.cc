@@ -1573,10 +1573,12 @@ int XrdCmsCluster::SelNode(XrdCmsSelect &Sel, SMask_t pmask, SMask_t amask)
 // Indicate whether or not stable selection is required
 //
    if (!(Sel.Opts & XrdCmsSelect::Pack)) selR.selPack = 0;
-      else {SMask_t sVec = pmask;
+      else {unsigned int theHash = (Sel.Opts & XrdCmsSelect::UseAH
+                                 ?  Sel.AltHash : Sel.Path.Hash);
+            SMask_t sVec = pmask;
             for (count = 0; sVec; count++) sVec &= (sVec - 1);
-            if (count > 1) selR.selPack = affsel = (Sel.Path.Hash % count) + 1;
-               else        selR.selPack = 0;
+            if (count > 1) selR.selPack = affsel = (theHash % count) + 1;
+                           selR.selPack = 0;
            }
 
 // There is a difference bwteen needing space and needing r/w access. The former

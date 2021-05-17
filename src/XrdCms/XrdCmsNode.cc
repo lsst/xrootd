@@ -58,6 +58,7 @@
 
 #include "XrdOss/XrdOss.hh"
 
+#include "XrdOuc/XrdOucCRC.hh"
 #include "XrdOuc/XrdOucName2Name.hh"
 #include "XrdOuc/XrdOucProg.hh"
 #include "XrdOuc/XrdOucPup.hh"
@@ -1170,6 +1171,22 @@ const char *XrdCmsNode::do_Select(XrdCmsRRData &Arg)
            if ((Arg.Opts & CmsSelectRequest::kYR_aPack) ==
                            CmsSelectRequest::kYR_aStrict)
               Sel.Opts |= XrdCmsSelect::UseRef;
+          }
+      }
+
+// Compute alternate hash. In the future this will be configurable.
+//
+   if (Sel.Opts & XrdCmsSelect::Pack)
+      {char *altPath = rindex(Sel.Path.Val, '/');
+       if (altPath && *(altPath+1) == 0) // This is rare
+          {*altPath = 0;
+           char *altPath2 = rindex(Sel.Path.Val, '/');
+           *altPath = '/'; altPath = altPath2;
+          }
+       if (altPath && altPath != Sel.Path.Val)
+          {int pLen = (altPath + Sel.Path.Len) - altPath;
+           Sel.AltHash = XrdOucCRC::Calc32C(altPath, pLen);
+           Sel.Opts |= XrdCmsSelect::UseAH;
           }
       }
 
