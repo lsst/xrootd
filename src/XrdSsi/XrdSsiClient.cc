@@ -260,6 +260,12 @@ bool XrdSsiClientProvider::SetConfig(XrdSsiErrInfo &eInfo,
                        else rDisp = rDispNone;
             clMutex.UnLock();
            }
+   else if (optname == "abortOnNoXmit" && optvalue == 1)
+           {clMutex.Lock();
+            setenv("XRD_NOXMITABORT", "1", 1);
+            clMutex.UnLock();
+           }
+
    else {eInfo.Set("invalid option name.", EINVAL); return false;}
 
    return true;

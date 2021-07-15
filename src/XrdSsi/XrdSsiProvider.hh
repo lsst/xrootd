@@ -254,6 +254,10 @@ virtual void   SetCBThreads(int cbNum, int ntNum=0) {(void)cbNum; (void)ntNum;}
 /*! The following table list the currently supported keynames and what the
     value actually does. These options only apply to the client.
 
+    abortOnNoXmit    Abort when a message is assumed to be transmitted but
+                     has not been tagged as being done so. Only applies
+                     to callback setup requests.
+
     cbThreads        The maximum number of threads to be used for callbacks and
                      sets the maximum number of active callbacks (default 300).
                      set a value between 1 and 32767. Note: the nproc ulimit

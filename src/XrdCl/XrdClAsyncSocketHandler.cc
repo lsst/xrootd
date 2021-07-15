@@ -510,6 +510,7 @@ namespace XrdCl
                " %d of %d bytes left",
                pStreamName.c_str(), toWrite->GetDescription().c_str(),
                toWrite, toWrite->GetSize(), (int)leftToBeWritten, (int)mBytes);
+         toWrite->xmitTries++;
          return st;
         }
 
@@ -525,6 +526,7 @@ namespace XrdCl
     log->Info( AsyncSockMsg, "[%s] Wrote a message: %s (0x%x), %d bytes",
                pStreamName.c_str(), toWrite->GetDescription().c_str(),
                toWrite, toWrite->GetSize() );
+    toWrite->xmitTries++; toWrite->xmitDone = true;
     return XRootDStatus();
   }
 

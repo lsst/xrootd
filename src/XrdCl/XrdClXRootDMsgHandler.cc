@@ -1382,9 +1382,19 @@ namespace XrdCl
       log->Dump( XRootDMsg, "[%s] Message %s has been successfully sent.",
                  pUrl.GetHostId().c_str(), message->GetDescription().c_str() );
 
-      log->Debug( ExDbgMsg, "[%s] Moving MsgHandler: 0x%x (message: %s ) from out-queu to in-queue.",
+      log->Debug( ExDbgMsg, "[%s] Moving MsgHandler: 0x%x (message: %s ) "
+                  "from out-q to in-q (xt=%d xd=%c).",
                   pUrl.GetHostId().c_str(), this,
-                  pRequest->GetDescription().c_str() );
+                  pRequest->GetDescription().c_str(),
+                  message->xmitTries, (message->xmitDone ? 'T' : 'F') );
+      if (!(message->xmitDone) && getenv("XRD_NOXMITABORT")
+      &&  !strncmp("kXR_q", message->GetDescription().c_str(), 5))
+         {log->Error( ExDbgMsg, "[%s] Message MsgHandler: 0x%x (message: %s ) "
+                  "not tagged as sent after %d tries, aborting!",
+                  pUrl.GetHostId().c_str(), this,
+                  pRequest->GetDescription().c_str(), message->xmitTries );
+          abort();
+         }
 
       Status st = pPostMaster->Receive( pUrl, this, pExpiration );
       if( st.IsOK() )

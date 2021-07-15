@@ -33,7 +33,7 @@ namespace XrdCl
       //! Constructor
       //------------------------------------------------------------------------
       Message( uint32_t size = 0 ):
-        Buffer( size ), pIsMarshalled( false ), pSessionId(0)
+        Buffer( size ), xmitTries(0), xmitDone(false), pIsMarshalled( false ), pSessionId(0)
       {
         if( size )
           Zero();
@@ -92,6 +92,8 @@ namespace XrdCl
         return pSessionId;
       }
 
+      int          xmitTries;
+      bool         xmitDone;
     private:
       bool         pIsMarshalled;
       uint64_t     pSessionId;
