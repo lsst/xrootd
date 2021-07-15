@@ -1578,7 +1578,7 @@ int XrdCmsCluster::SelNode(XrdCmsSelect &Sel, SMask_t pmask, SMask_t amask)
             SMask_t sVec = pmask;
             for (count = 0; sVec; count++) sVec &= (sVec - 1);
             if (count > 1) selR.selPack = affsel = (theHash % count) + 1;
-                           selR.selPack = 0;
+               else        selR.selPack = 0;
            }
 
 // There is a difference bwteen needing space and needing r/w access. The former
