@@ -203,7 +203,7 @@ XrdSsiTaskReal *XrdSsiSessReal::NewTask(XrdSsiRequest *reqP)
 // Initialize the task and return its pointer
 //
    tP->Init(reqP, reqP->GetTimeOut());
-   DEBUG("New task=" <<tP <<" id=" <<tP->ID());
+   DEBUG("New task=" <<tP <<" id= T "<<sessID<<"#"<<tP->ID());
 
 // Insert the task into our list of tasks
 //

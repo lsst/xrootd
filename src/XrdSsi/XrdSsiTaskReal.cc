@@ -143,7 +143,7 @@ bool XrdSsiTaskReal::Ask4Resp()
 
 // Do some debugging
 //
-   DEBUG("Calling fcntl for response.");
+   DEBUG("Calling fcntl for response from "<<sessP->SessName());
 
 // Issue the command to field the response
 //

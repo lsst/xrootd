@@ -70,6 +70,8 @@ XrdSsiMutex     *MutexP() {return &sessMutex;}
                         resKey =  (key ? strdup(key) : 0);
                        }
 
+const   char    *SessName() {return sessName;}
+
         void     TaskFinished(XrdSsiTaskReal *tP);
 
         void     UnHold(bool cleanup=true);

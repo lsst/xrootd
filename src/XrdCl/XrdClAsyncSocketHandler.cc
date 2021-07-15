@@ -504,7 +504,14 @@ namespace XrdCl
         return st;
       }
 
-      if( st.code == suRetry ) return st;
+      if( st.code == suRetry )
+        {int mBytes = msg->GetSize()-msg->GetCursor();
+         log->Info( AsyncSockMsg, "[%s] Partial message: %s (0x%x), %d bytes "
+               " %d of %d bytes left",
+               pStreamName.c_str(), toWrite->GetDescription().c_str(),
+               toWrite, toWrite->GetSize(), (int)leftToBeWritten, (int)mBytes);
+         return st;
+        }
 
       msg->AdvanceCursor( bytesWritten );
       leftToBeWritten -= bytesWritten;
@@ -513,7 +520,9 @@ namespace XrdCl
     //--------------------------------------------------------------------------
     // We have written the message successfully
     //--------------------------------------------------------------------------
-    log->Dump( AsyncSockMsg, "[%s] Wrote a message: %s (0x%x), %d bytes",
+//??log->Dump( AsyncSockMsg, "[%s] Wrote a message: %s (0x%x), %d bytes",
+    if (!strncmp("kXR_q", toWrite->GetDescription().c_str(), 5))
+    log->Info( AsyncSockMsg, "[%s] Wrote a message: %s (0x%x), %d bytes",
                pStreamName.c_str(), toWrite->GetDescription().c_str(),
                toWrite, toWrite->GetSize() );
     return XRootDStatus();
