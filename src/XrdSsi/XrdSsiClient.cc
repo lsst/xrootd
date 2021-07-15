@@ -260,9 +260,9 @@ bool XrdSsiClientProvider::SetConfig(XrdSsiErrInfo &eInfo,
                        else rDisp = rDispNone;
             clMutex.UnLock();
            }
-   else if (optname == "abortOnNoXmit" && optvalue == 1)
+   else if (optname == "abortOnNoXmit")
            {clMutex.Lock();
-            setenv("XRD_NOXMITABORT", "1", 1);
+            if (optvalue) setenv("XRD_NOXMITABORT", "1", 1);
             clMutex.UnLock();
            }
 
